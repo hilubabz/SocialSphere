@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
     "formidable": "^3.5.4",
     "lucide-react": "^0.517.0",
     "mongoose": "^8.15.2",

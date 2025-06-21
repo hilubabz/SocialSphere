@@ -1,15 +1,17 @@
 "use client";
 
-import LoginUser from "@/app/apis/loginUser/route";
+
 import Link from "next/link";
 import { useState } from "react";
 import { User, Lock, LogIn, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 
 export default function Page() {
   const [login, setLogin] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router=useRouter(null)
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -30,14 +32,24 @@ export default function Page() {
       setError("Username can't be empty");
     } else {
       try {
-        let cond = await LoginUser(login);
-        if (cond) {
+        const response = await fetch("/apis/loginUser", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(login),
+        });
+        let res = await response.json();
+        if (res.success) {
           setError("Login Successful");
+          sessionStorage.setItem("login", JSON.stringify(res.data));
+          setTimeout(()=>{
+            router.push('/posts')
+          },2000)
         } else {
           setError("Invalid Credentials");
         }
       } catch (err) {
         setError("Something went wrong. Please try again.");
+        console.log(err)
       }
     }
 
@@ -45,7 +57,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Main Login Card */}
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-8 lg:p-10">

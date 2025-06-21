@@ -1,5 +1,4 @@
-const { mongoose, model } = require("mongoose");
-
+const { mongoose} = require("mongoose");
 
 const postSchema = new mongoose.Schema(
   {
@@ -8,24 +7,26 @@ const postSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    caption:{
-      type:String,
-      required:true
+    caption: {
+      type: String,
+      required: true,
     },
-    photo:{
-      type:String,
-      required:false
+    photo: {
+      type: Array,
+      required: false,
     },
-    likes:{
-      type:Array,
-      required:false
+    likes: {
+      type: Array,
+      required: false,
+      ref:"User"
     },
-    comments:{
-      type:Array,
-      required:false
-    }
+    comments: {
+      type: Array,
+      required: false,
+      ref:"User"
+    },
   },
-  { timeStamps: true }
+  { timestamps: true }  // <== corrected here
 );
 
-model.exports = mongoose.model("Post", postSchema);
+export default mongoose.models.Post || mongoose.model("Post", postSchema);
