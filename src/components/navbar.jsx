@@ -2,10 +2,12 @@
 import { Search, Home, Bell, Mail, User } from "lucide-react";
 import { useEffect, useState, useContext } from "react";
 import { useUserData } from "@/context/userContext";
+import Link from "next/link";
 
 
 export default function Navbar() {
   const {userData, setUserData} = useUserData({});
+  const [nav,setNav]=useState(1)
 
   const fetchUserData = async (userId) => {
     try {
@@ -47,10 +49,10 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-2 text-white hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
+            <Link href={'/posts'} className={`flex items-center space-x-2 text-white hover:text-purple-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl ${nav === 1 ? "bg-white/10 text-purple-300" : ""}`} onClick={()=>setNav(1)}>
               <Home className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Home</span>
-            </div>
+            </Link>
             <div className="flex items-center space-x-2 text-white/70 hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
               <Search className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Explore</span>
@@ -63,10 +65,10 @@ export default function Navbar() {
               <Mail className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Messages</span>
             </div>
-            <div className="flex items-center space-x-2 text-white/70 hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
+            <Link href={`/`} className={`flex items-center space-x-2 text-white hover:text-purple-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl ${nav === 5 ? "text-purple-300 bg-white/10" : ""}`} onClick={()=>setNav(5)}>
               <User className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Profile</span>
-            </div>
+            </Link>
           </div>
 
           {/* User Profile */}

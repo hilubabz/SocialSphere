@@ -1,3 +1,5 @@
+'use client'
+
 export default function Stats(){
     return(
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-xl">

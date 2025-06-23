@@ -1,12 +1,8 @@
 "use client";
-
-
 import Link from "next/link";
 import { useState } from "react";
 import { User, Lock, LogIn, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-
 export default function Page() {
   const [login, setLogin] = useState({ username: "", password: "" });
   const [error, setError] = useState("");

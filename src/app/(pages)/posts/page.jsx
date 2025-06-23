@@ -13,6 +13,7 @@ export default function Page() {
     const { userData, setUserData } = useUserData()
     const [post, setPost] = useState([])
     useEffect(() => {
+        if(!userData?._id) return;
         const getPost = async () => {
             const res = await fetch(`/apis/retrievePost?userId=${userData._id}`, {
                 method: 'GET',
@@ -28,7 +29,7 @@ export default function Page() {
         getPost()
     }, [userData])
 
-    console.log(post)
+    // console.log(post)
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">

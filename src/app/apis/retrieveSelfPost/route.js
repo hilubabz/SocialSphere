@@ -1,4 +1,4 @@
-"use server";
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Post from '@/modals/post';
@@ -18,18 +18,21 @@ export async function GET(request) {
       );
     }
 
-    // Fetch all posts except those by the given userId
-    const res = await Post.find({ userId: userId  });
+    // Fetch all posts except those by the given userId and populate user info
+    const posts = await Post.find({userId:userId})
+      .populate('userId', '_id name username profilePicture')
+      .lean();
+
 
     return NextResponse.json(
-      { success: true, message: 'Posts retrieved', data: res },
+      { success: true, message: 'Posts retrieved', data: posts },
       { status: 200 }
     );
   } catch (e) {
     console.error(e);
     return NextResponse.json(
       { success: false, message: 'Retrieval failed', error: e.message },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }

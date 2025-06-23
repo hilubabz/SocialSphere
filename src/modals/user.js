@@ -1,5 +1,11 @@
-const { mongoose, model } = require("mongoose");
 
+const { mongoose, model } = require("mongoose");
+const followerSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  },
+  { timestamps: true } // ✅ Adds createdAt and updatedAt to each comment
+);
 
 const userSchema=new mongoose.Schema({
     name:{
@@ -35,7 +41,9 @@ const userSchema=new mongoose.Schema({
     bio:{
         type:String,
         required:[false]
-    }
+    },
+    followers:[followerSchema],
+    following:[followerSchema]
 
 },{ timestamps: true } )
 

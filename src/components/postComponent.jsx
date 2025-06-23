@@ -1,11 +1,43 @@
 "use client";
 
-import { Heart, MessageCircle, Share, Bookmark, MoreHorizontal, UserPlus, } from "lucide-react"
+import { Heart, MessageCircle, Share, Bookmark, MoreHorizontal, UserPlus, Send, X } from "lucide-react"
 import ImageSlider from "./imageSlider";
 import { formatDistanceToNow } from "date-fns";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 export default function Post({ postData, userId, setPost }) {
+    const [showComments, setShowComments] = useState(false);
+    const [newComment, setNewComment] = useState("");
+    const [comment, setComment] = useState([])
+    const latestCommentRef = useRef(null)
 
+    useEffect(() => {
+        if (showComments) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "auto";
+        }
+
+        // Clean up in case the component unmounts while modal is open
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, [showComments]);
+
+    const fetchComment = async () => {
+        if(!postData?._id) return
+        const res = await fetch(`/apis/retrieveComment?postId=${postData._id}`, {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json"
+            },
+        })
+        const result = await res.json()
+        if (result.success) {
+            setComment(result.data)
+        }
+    }
 
     const toggleLike = async () => {
         if (postData.likes.includes(userId)) {
@@ -17,14 +49,14 @@ export default function Post({ postData, userId, setPost }) {
                 body: JSON.stringify({ postId: postData._id, userId: userId })
             })
             const result = await res.json()
-            console.log(result.message)
+            // console.log(result.message)
             if (result.success) {
                 setPost((prevPosts) =>
                     prevPosts.map((post) =>
                         post._id === postData._id
                             ? {
                                 ...post,
-                                likes: [...post.likes, userId],
+                                likes: post.likes.filter((id) => id !== userId),
                             }
                             : post
                     )
@@ -40,7 +72,7 @@ export default function Post({ postData, userId, setPost }) {
                 body: JSON.stringify({ postId: postData._id, userId: userId })
             })
             const result = await res.json()
-            console.log(result.message)
+            // console.log(result.message)
             if (result.success) {
                 setPost((prevPosts) =>
                     prevPosts.map((post) =>
@@ -56,69 +88,186 @@ export default function Post({ postData, userId, setPost }) {
         }
     }
 
+    const toggleComments = () => {
+        fetchComment()
+        setShowComments(!showComments);
+    };
+
+    const handleAddComment = async (e) => {
+        e.preventDefault();
+        if (newComment.trim()) {
+            const res = await fetch('/apis/addComment', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ postId: postData._id, userId: userId, comment: newComment })
+            })
+            const result = await res.json()
+            fetchComment()
+            console.log(result.message)
+            setNewComment('')
+        }
+    };
+
+    useEffect(() => {
+        if (latestCommentRef.current) {
+            latestCommentRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, [comment]);
+
     return (
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden">
-            {/* Post Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <div className="flex items-center space-x-3">
-                    <div className="h-12 w-12 rounded-full overflow-hidden ring-2 ring-purple-400/50">
-                        <img src={postData.userId?.profilePicture} className="h-full w-full object-cover" alt="Profile" />
-                    </div>
-                    <div>
-                        <div className="text-white font-semibold hover:text-purple-300 cursor-pointer transition-colors">
-                            {postData.userId?.name}
+        <>
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden">
+                {/* Post Header */}
+                <div className="flex items-center justify-between p-6 border-b border-white/10">
+                    <div className="flex items-center space-x-3">
+                        <div className="h-12 w-12 rounded-full overflow-hidden ring-2 ring-purple-400/50">
+                            <img src={postData.userId?.profilePicture} className="h-full w-full object-cover" alt="Profile" />
                         </div>
-                        <div className="text-white/60 text-sm">{postData.userId?.username} • {formatDistanceToNow(new Date(postData.createdAt), { addSuffix: true })}</div>
+                        <div>
+                            <Link href={`/profile/${postData.userId?._id}`} className="text-white font-semibold hover:text-purple-300 cursor-pointer transition-colors">
+                                {postData.userId?.name}
+                            </Link>
+                            <div className="text-white/60 text-sm">{postData.userId?.username} • {formatDistanceToNow(new Date(postData.createdAt), { addSuffix: true })}</div>
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                        <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
+                            <UserPlus className="w-4 h-4" />
+                            <span>Follow</span>
+                        </button>
+                        <button className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors">
+                            <MoreHorizontal className="w-5 h-5" />
+                        </button>
                     </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                    <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
-                        <UserPlus className="w-4 h-4" />
-                        <span>Follow</span>
-                    </button>
-                    <button className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors">
-                        <MoreHorizontal className="w-5 h-5" />
-                    </button>
+
+                {/* Post Content */}
+                <div className="p-3 border-b border-white/10">
+                    <p className="text-white mb-4 leading-relaxed">
+                        {postData.caption}
+                    </p>
+                </div>
+
+                {/* Post Image Slider */}
+                <ImageSlider photos={postData.photo} />
+
+                {/*Like Comment*/}
+                <div className="p-6 border-t border-white/10">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-6">
+                            <button className="flex items-center space-x-2 text-white/70 hover:text-red-400 transition-colors group">
+                                <div className="p-2 rounded-full group-hover:bg-red-500/10 transition-colors">
+                                    <Heart className={`w-5 h-5 transition-all ease-in-out duration-400 ${postData.likes.includes(userId) ? "fill-red-600 text-red-600" : ""}`} onClick={toggleLike} />
+                                </div>
+                                <span className="text-sm font-medium">{postData.likes.length} Likes</span>
+                            </button>
+                            <button
+                                onClick={toggleComments}
+                                className="flex items-center space-x-2 text-white/70 hover:text-blue-400 transition-colors group"
+                            >
+                                <div className="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
+                                    <MessageCircle className="w-5 h-5" />
+                                </div>
+                                <span className="text-sm font-medium">{postData.comments.length} Comments</span>
+                            </button>
+                            <button className="flex items-center space-x-2 text-white/70 hover:text-green-400 transition-colors group">
+                                <div className="p-2 rounded-full group-hover:bg-green-500/10 transition-colors">
+                                    <Share className="w-5 h-5" />
+                                </div>
+                                <span className="text-sm font-medium">Share</span>
+                            </button>
+                        </div>
+                        <button className="text-white/70 hover:text-purple-400 transition-colors p-2 rounded-full hover:bg-purple-500/10">
+                            <Bookmark className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Post Content */}
-            <div className="p-3 border-b border-white/10">
-                <p className="text-white mb-4 leading-relaxed">
-                    {postData.caption}
-                </p>
-            </div>
+            {/* Comments Modal Overlay */}
+            {showComments && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50 backdrop-blur-lg rounded-2xl border border-white/20 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-white/20">
+                            <h2 className="text-white font-semibold text-lg">Comments</h2>
+                            <button
+                                onClick={toggleComments}
+                                className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
 
-            {/* Post Image Slider */}
-            <ImageSlider photos={postData.photo} />
-            {/*Like Comment*/}
-            <div className="p-6 border-t border-white/10">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-6">
-                        <button className="flex items-center space-x-2 text-white/70 hover:text-red-400 transition-colors group">
-                            <div className="p-2 rounded-full group-hover:bg-red-500/10 transition-colors">
-                                <Heart className="w-5 h-5" onClick={toggleLike} />
-                            </div>
-                            <span className="text-sm font-medium">{postData.likes.length} Likes</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-white/70 hover:text-blue-400 transition-colors group">
-                            <div className="p-2 rounded-full group-hover:bg-blue-500/10 transition-colors">
-                                <MessageCircle className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-medium">23 Comments</span>
-                        </button>
-                        <button className="flex items-center space-x-2 text-white/70 hover:text-green-400 transition-colors group">
-                            <div className="p-2 rounded-full group-hover:bg-green-500/10 transition-colors">
-                                <Share className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-medium">Share</span>
-                        </button>
+                        {/* Comments List */}
+                        <div className="flex flex-col overflow-y-auto max-h-[60vh] min-h-[300px]">
+                            {comment.map((comments, index) => (
+                                <div key={comments._id} ref={index === comment.length - 1 ? latestCommentRef : null} className="p-4 border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors h-30">
+                                    <div className="flex items-start space-x-3">
+                                        <div className="h-10 w-10 rounded-full overflow-hidden ring-2 ring-purple-400/30 flex-shrink-0">
+                                            <img
+                                                src={comments.userId?.profilePicture}
+                                                className="h-full w-full object-cover"
+                                                alt={comments.userId?.name}
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <span className="text-white font-medium hover:text-purple-300 cursor-pointer transition-colors">
+                                                    {comments.userId?.name}
+                                                </span>
+                                                <span className="text-white/50 text-sm">
+                                                    @{comments.userId?.username}
+                                                </span>
+                                                <span className="text-white/40 text-sm">
+                                                    •
+                                                </span>
+                                                <span className="text-white/50 text-sm">
+                                                    {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
+                                                </span>
+                                            </div>
+                                            <p className="text-white/90 leading-relaxed">
+                                                {comments.text}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Add Comment Input - Fixed at bottom */}
+                        <div className="p-6 border-t border-white/20 bg-white/5">
+                            <form onSubmit={handleAddComment} className="flex items-center space-x-4">
+                                <div className="h-10 w-10 rounded-full overflow-hidden ring-2 ring-purple-400/50 flex-shrink-0">
+                                    <img
+                                        src={postData.userId?.profilePicture || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face"}
+                                        className="h-full w-full object-cover"
+                                        alt="Your profile"
+                                    />
+                                </div>
+                                <div className="flex-1 relative">
+                                    <input
+                                        type="text"
+                                        value={newComment}
+                                        onChange={(e) => setNewComment(e.target.value)}
+                                        placeholder="Add a comment..."
+                                        className="w-full bg-white/10 border border-white/30 rounded-full px-4 py-3 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-transparent"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!newComment.trim()}
+                                        className="absolute right-3 top-1/3 transform -translate-y-1/2 text-white/60 hover:text-purple-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <Send className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <button className="text-white/70 hover:text-purple-400 transition-colors p-2 rounded-full hover:bg-purple-500/10">
-                        <Bookmark className="w-5 h-5" />
-                    </button>
                 </div>
-            </div>
-        </div>
+            )}
+        </>
     )
 }

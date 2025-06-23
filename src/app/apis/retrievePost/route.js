@@ -1,4 +1,4 @@
-"use server";
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Post from '@/modals/post';
@@ -20,18 +20,12 @@ export async function GET(request) {
 
     // Fetch all posts except those by the given userId and populate user info
     const posts = await Post.find({ userId: { $ne: userId } })
-      .populate('userId', 'name username profilePicture -_id')
+      .populate('userId', '_id name username profilePicture')
       .lean();
 
-    // Transform to include a `user` field instead of userId reference
-    const enriched = posts.map(post => ({
-      ...post,
-      user: post.userId,
-      userId: post.userId._id || post.userId, // preserve id if needed
-    }));
 
     return NextResponse.json(
-      { success: true, message: 'Posts retrieved', data: enriched },
+      { success: true, message: 'Posts retrieved', data: posts },
       { status: 200 }
     );
   } catch (e) {

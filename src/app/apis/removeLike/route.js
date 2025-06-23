@@ -1,4 +1,4 @@
-// /app/api/likePost/route.js
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Post from '@/modals/post';

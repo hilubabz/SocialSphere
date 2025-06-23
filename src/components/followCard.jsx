@@ -1,3 +1,4 @@
+'use client'
 import {User,Users} from "lucide-react"
 
 export default function FollowCard(){
