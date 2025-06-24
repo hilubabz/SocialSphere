@@ -1,5 +1,3 @@
-
-
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/modals/user';
@@ -13,9 +11,11 @@ export async function GET(request){
         const userId = searchParams.get('userId');
 
         if(!userId || !mongoose.Types.ObjectId.isValid(userId)){
-            return NextResponse.json({success:false,message:'UserId is not defined'},{status:404})
+            return NextResponse.json({success:false,message:'UserId is not defined'},{status:400})
         }
-        const res=await User.find({_id:{$ne:userId}}).select("-password")
+        const user=await User.findById(userId)
+
+        const res=await User.find({_id:{$nin:[userId,...user.following]}}).select("-password")
         return NextResponse.json({success:true,message:'Users fetched',data:res},{status:200})
     }
     catch(e){

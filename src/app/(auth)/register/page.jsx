@@ -52,6 +52,7 @@ export default function Page() {
       reader.readAsDataURL(file);
     }
   };
+  console.log(regInfo)
 
   const handleRePass = (event) => {
     const val = event.target.value;

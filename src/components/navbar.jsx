@@ -49,7 +49,7 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-8">
-            <Link href={'/posts'} className={`flex items-center space-x-2 text-white hover:text-purple-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl ${nav === 1 ? "bg-white/10 text-purple-300" : ""}`} onClick={()=>setNav(1)}>
+            <Link href={'/posts'} className={`flex items-center space-x-2 text-white/70 hover:text-purple-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl }`} onClick={()=>setNav(1)}>
               <Home className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Home</span>
             </Link>
@@ -65,7 +65,7 @@ export default function Navbar() {
               <Mail className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Messages</span>
             </div>
-            <Link href={`/`} className={`flex items-center space-x-2 text-white hover:text-purple-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl ${nav === 5 ? "text-purple-300 bg-white/10" : ""}`} onClick={()=>setNav(5)}>
+            <Link href={`/profile/${userData._id}`} className={`flex items-center space-x-2 text-white/70 hover:text-purple-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl`}>
               <User className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Profile</span>
             </Link>

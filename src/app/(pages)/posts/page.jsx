@@ -11,9 +11,11 @@ import { useState, useEffect } from "react";
 
 export default function Page() {
     const { userData, setUserData } = useUserData()
+    const [followingPost, setFollowingPost] = useState()
+    const [postToggle, setPostToggle]=useState(false)
     const [post, setPost] = useState([])
     useEffect(() => {
-        if(!userData?._id) return;
+        if (!userData?._id) return;
         const getPost = async () => {
             const res = await fetch(`/apis/retrievePost?userId=${userData._id}`, {
                 method: 'GET',
@@ -21,13 +23,28 @@ export default function Page() {
                     "Content-Type": "application/json",
                 },
             })
-            const postData=await res.json()
-            if(postData.success){
-                setPost(postData.data)
+            const postData = await res.json()
+            if (postData.success) {
+                setPost(postData.data.reverse())
             }
         }
         getPost()
+
+        const getFollowingPost = async () => {
+            const res = await fetch(`/apis/retrieveFollowingPost?userId=${userData._id}`, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            const postData = await res.json()
+            if (postData.success) {
+                setFollowingPost(postData.data.reverse())
+            }
+        }
+        getFollowingPost()
     }, [userData])
+    // console.log(followingPost)
 
     // console.log(post)
 
@@ -38,7 +55,19 @@ export default function Page() {
                 {/* Left Sidebar */}
                 <div className="col-span-3 space-y-4 sticky top-20 self-start">
                     {/* Trending */}
-                    <Trending />
+                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-xl">
+                        <div className="flex items-center space-x-2 mb-4">
+                            <h3 className="text-white font-semibold">Posts</h3>
+                        </div>
+                        <div className="space-y-3">
+                            <div className={`cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors ${!postToggle?"bg-white/5":""}`}>
+                                <p className="text-white/90 font-medium" onClick={()=>setPostToggle(false)}>All Posts</p>
+                            </div>
+                            <div className={`cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors ${postToggle?"bg-white/5":""}`}>
+                                <p className="text-white/90 font-medium" onClick={()=>setPostToggle(true)}>Following Posts</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Main Feed */}
@@ -47,8 +76,12 @@ export default function Page() {
                     <CreatePost />
 
                     {/* Post */}
-                    {post && post.map((val,index) => (
-                        <Post key={index} postData={val} userId={userData._id} setPost={setPost}/>
+                    
+                    {!postToggle&&post && post.map((val, index) => (
+                        <Post key={index} postData={val} userId={userData._id} setPost={setPost} followers={userData.followers} following={userData.following}/>
+                    ))}
+                    {postToggle&&followingPost && followingPost.map((val, index) => (
+                        <Post key={index} postData={val} userId={userData._id} setPost={setPost} followers={userData.followers} following={userData.following}/>
                     ))}
                 </div>
 

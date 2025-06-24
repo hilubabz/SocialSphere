@@ -6,10 +6,12 @@ import { formatDistanceToNow } from "date-fns";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-export default function Post({ postData, userId, setPost }) {
+export default function Post({ postData, userId, setPost, followers, following }) {
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [comment, setComment] = useState([])
+    const [isFollower, setIsFollower]=useState(false)
+    const [isFollowing, setIsFollowing]=useState(false)
     const latestCommentRef = useRef(null)
 
     useEffect(() => {
@@ -24,6 +26,15 @@ export default function Post({ postData, userId, setPost }) {
             document.body.style.overflow = "auto";
         };
     }, [showComments]);
+
+    useEffect(()=>{
+    if(followers.includes(postData.userId?._id)){
+        setIsFollower(true)
+    }
+    if(following.includes(postData.userId?._id)){
+        setIsFollowing(true)
+    }
+    },[])
 
     const fetchComment = async () => {
         if(!postData?._id) return
@@ -135,7 +146,10 @@ export default function Post({ postData, userId, setPost }) {
                     <div className="flex items-center space-x-3">
                         <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
                             <UserPlus className="w-4 h-4" />
-                            <span>Follow</span>
+                            {(!isFollowing&&!isFollower)&&<span>Follow</span>}
+                            {(isFollowing)&&<span>Following</span>}
+                            {(isFollower)&&<span>Follow Back</span>}
+                            {(isFollower&&isFollowing)&&<span>Friends</span>}
                         </button>
                         <button className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors">
                             <MoreHorizontal className="w-5 h-5" />

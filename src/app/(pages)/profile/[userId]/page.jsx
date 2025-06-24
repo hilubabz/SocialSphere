@@ -128,11 +128,11 @@ export default function ProfilePage() {
                                 <div className="text-white/60 text-sm font-medium">Posts</div>
                             </div>
                             <div className="text-center cursor-pointer hover:scale-105 transition-transform duration-300">
-                                <div className="text-2xl font-bold text-white mb-1">{(userData.followers)}</div>
+                                <div className="text-2xl font-bold text-white mb-1">{(userData.followers.length)}</div>
                                 <div className="text-white/60 text-sm font-medium">Followers</div>
                             </div>
                             <div className="text-center cursor-pointer hover:scale-105 transition-transform duration-300">
-                                <div className="text-2xl font-bold text-white mb-1">{(userData.following)}</div>
+                                <div className="text-2xl font-bold text-white mb-1">{(userData.following.length)}</div>
                                 <div className="text-white/60 text-sm font-medium">Following</div>
                             </div>
                         </div>
