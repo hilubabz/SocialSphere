@@ -53,14 +53,14 @@ export default function Navbar() {
               <Home className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Home</span>
             </Link>
-            <div className="flex items-center space-x-2 text-white/70 hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
+            <Link href={'/followPage'} className="flex items-center space-x-2 text-white/70 hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
               <Search className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Explore</span>
-            </div>
-            <div className="flex items-center space-x-2 text-white/70 hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
+            </Link>
+            <Link href={'/notifications'} className="flex items-center space-x-2 text-white/70 hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
               <Bell className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Notifications</span>
-            </div>
+            </Link>
             <div className="flex items-center space-x-2 text-white/70 hover:text-purple-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
               <Mail className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Messages</span>

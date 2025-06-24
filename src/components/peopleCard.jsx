@@ -1,8 +1,15 @@
 "use client"
 import { X, UserPlus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PeopleCard({ person, userId, check,setCheck}) {
+  const [isFollower,setIsFollower]=useState(false)
+
+  useEffect(()=>{
+    if(person?.following.includes(userId)){
+      setIsFollower(true)
+    }
+  },[])
   const followUser = async () => {
     try {
       const res = await fetch('apis/followUser', {
@@ -54,10 +61,14 @@ export default function PeopleCard({ person, userId, check,setCheck}) {
           <p className="text-slate-300 text-sm mb-2 font-light">
             {person.name}
           </p>
-          <p className="text-slate-400 text-xs flex items-center justify-center gap-1">
-            <span className="w-1 h-1 bg-slate-400 rounded-full"></span>
-            {person.mutualFollowers} mutual followers
-          </p>
+          {(person.mutualFollowers.length!=0)&&(<p className="text-slate-400 text-xs flex flex-col items-center justify-center gap-1">
+            <span>Followed by {person.mutualFollowerName}</span>
+            {(person.mutualFollowers.length!=1)&&(<span>& {person.mutualFollowers.length-1} other mutual followers</span>)}
+          </p>)}
+          {(person.mutualFollowers.length==0)&&(<p className="text-slate-400 text-xs flex flex-col items-center justify-center gap-1">
+            <span>Suggested For You</span>
+            <span>{isFollower?'Follows You':'-----------------'}</span>
+          </p>)}
         </div>
 
         {/* Action Button */}
@@ -67,7 +78,7 @@ export default function PeopleCard({ person, userId, check,setCheck}) {
               }`}
         >
           <UserPlus className="w-4 h-4" />
-          Follow
+          {isFollower?'Follow Back':'Follow'}
         </button>
       </div>
     </div>

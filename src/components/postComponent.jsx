@@ -5,13 +5,16 @@ import ImageSlider from "./imageSlider";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useUserData } from "@/context/userContext";
 
-export default function Post({ postData, userId, setPost, followers, following }) {
+
+export default function Post({ postData, userId, setPost, selfProfile }) {
+    const { userData, setUserData } = useUserData()
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [comment, setComment] = useState([])
-    const [isFollower, setIsFollower]=useState(false)
-    const [isFollowing, setIsFollowing]=useState(false)
+    const [isFollower, setIsFollower] = useState(false)
+    const [isFollowing, setIsFollowing] = useState(false)
     const latestCommentRef = useRef(null)
 
     useEffect(() => {
@@ -21,23 +24,22 @@ export default function Post({ postData, userId, setPost, followers, following }
             document.body.style.overflow = "auto";
         }
 
-        // Clean up in case the component unmounts while modal is open
         return () => {
             document.body.style.overflow = "auto";
         };
     }, [showComments]);
 
-    useEffect(()=>{
-    if(followers.includes(postData.userId?._id)){
-        setIsFollower(true)
-    }
-    if(following.includes(postData.userId?._id)){
-        setIsFollowing(true)
-    }
-    },[])
+    useEffect(() => {
+        if (userData.followers.includes(postData.userId?._id)) {
+            setIsFollower(true)
+        }
+        if (userData.following.includes(postData.userId?._id)) {
+            setIsFollowing(true)
+        }
+    }, [])
 
     const fetchComment = async () => {
-        if(!postData?._id) return
+        if (!postData?._id) return
         const res = await fetch(`/apis/retrieveComment?postId=${postData._id}`, {
             method: 'GET',
             headers: {
@@ -144,13 +146,15 @@ export default function Post({ postData, userId, setPost, followers, following }
                         </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                        <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
-                            <UserPlus className="w-4 h-4" />
-                            {(!isFollowing&&!isFollower)&&<span>Follow</span>}
-                            {(isFollowing)&&<span>Following</span>}
-                            {(isFollower)&&<span>Follow Back</span>}
-                            {(isFollower&&isFollowing)&&<span>Friends</span>}
-                        </button>
+                        {!selfProfile && (
+                            <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
+                                <UserPlus className="w-4 h-4" />
+                                {(!isFollowing && !isFollower) && <span>Follow</span>}
+                                {(isFollowing && !isFollower) && <span>Following</span>}
+                                {(!isFollowing && isFollower) && <span>Follow Back</span>}
+                                {(isFollower && isFollowing) && <span>Friends</span>}
+                            </button>
+                        )}
                         <button className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors">
                             <MoreHorizontal className="w-5 h-5" />
                         </button>

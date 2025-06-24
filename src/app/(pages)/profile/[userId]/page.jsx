@@ -1,24 +1,32 @@
 "use client";
 
 import Post from "@/components/postComponent";
-import { Camera, Edit, Settings, Grid, Bookmark, Heart, MessageCircle } from "lucide-react";
+import { useUserData } from "@/context/userContext";
+import { Camera, Edit, Settings, Grid, Bookmark, UserPlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 
+
 export default function ProfilePage() {
     const [activeTab, setActiveTab] = useState('posts');
-
+    const { userData, setUserData } = useUserData()
+    const [isFollower, setIsFollower] = useState(false)
+    const [isFollowing, setIsFollowing] = useState(false)
     const { userId } = useParams()
-    const [userData, setUserData] = useState()
+    const [profileUser, setprofileUser] = useState()
     const [selfProfile, setSelfProfile] = useState()
     const [post, setPost] = useState()
-    const [sessionUserId,setSessionUserId]=useState()
+    const [sessionUserId, setSessionUserId] = useState()
+
+    useEffect(()=>{
+        setSessionUserId(JSON.parse(sessionStorage.getItem("login")))
+    },[])
 
     useEffect(() => {
         const retrieveUser = async () => {
             if (!userId) return
-            setSessionUserId(JSON.parse(sessionStorage.getItem("login")))
+            
             try {
                 const res = await fetch(`/apis/retrieveUserInfo?userId=${userId}`, {
                     method: "GET",
@@ -27,7 +35,7 @@ export default function ProfilePage() {
                     }
                 })
                 const user = await res.json()
-                setUserData(user.data)
+                setprofileUser(user.data)
             }
             catch (e) {
                 console.log(e)
@@ -52,9 +60,19 @@ export default function ProfilePage() {
         }
         retrievePost()
         userId == sessionUserId ? setSelfProfile(true) : setSelfProfile(false)
-    }, [userId])
+    }, [userId, sessionUserId])
 
-    if (!userData) return <div className="text-white text-center mt-10">Loading...</div>;
+    useEffect(() => {
+        if (profileUser && userData?.followers.includes(profileUser._id)) {
+            setIsFollower(true)
+        }
+        if (profileUser && userData?.following.includes(profileUser._id)) {
+            setIsFollowing(true)
+        }
+    }, [profileUser])
+
+
+    if (!profileUser) return <div className="text-white text-center mt-10">Loading...</div>;
 
     else
         return (
@@ -65,7 +83,7 @@ export default function ProfilePage() {
                     <div className="relative mb-8">
                         <div className="h-80 rounded-3xl overflow-hidden relative">
                             <img
-                                src={userData.coverPicture}
+                                src={profileUser.coverPicture}
                                 alt="Cover"
                                 className="w-full h-full object-cover"
                             />
@@ -82,8 +100,8 @@ export default function ProfilePage() {
                             <div className="relative">
                                 <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white/50 bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-xl">
                                     <img
-                                        src={userData.profilePicture}
-                                        alt={userData.name}
+                                        src={profileUser.profilePicture}
+                                        alt={profileUser.name}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
@@ -101,16 +119,16 @@ export default function ProfilePage() {
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex-1">
                                 <div className="flex items-center gap-4 mb-2">
-                                    <h1 className="text-3xl font-bold text-white">{userData.name}</h1>
+                                    <h1 className="text-3xl font-bold text-white">{profileUser.name}</h1>
                                     {selfProfile && (
                                         <button className="text-white/70 hover:text-white p-2 rounded-full hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300">
                                             <Edit className="w-5 h-5" />
                                         </button>
                                     )}
                                 </div>
-                                <p className="text-white/70 text-lg mb-4">@{userData.username}</p>
+                                <p className="text-white/70 text-lg mb-4">@{profileUser.username}</p>
                                 <div className="text-white/90 text-base leading-relaxed whitespace-pre-line mb-6">
-                                    {userData.bio}
+                                    {profileUser.bio}
                                 </div>
                             </div>
 
@@ -119,6 +137,16 @@ export default function ProfilePage() {
                                     <Settings className="w-5 h-5" />
                                 </button>
                             )}
+                            {!selfProfile && (
+                                <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
+                                    <UserPlus className="w-4 h-4" />
+                                    {(!isFollowing && !isFollower) && <span>Follow</span>}
+                                    {(isFollowing &&!isFollower) && <span>Following</span>}
+                                    {(!isFollowing&&isFollower) && <span>Follow Back</span>}
+                                    {(isFollower && isFollowing) && <span>Friends</span>}
+                                </button>
+                            )}
+
                         </div>
 
                         {/* Stats */}
@@ -128,11 +156,11 @@ export default function ProfilePage() {
                                 <div className="text-white/60 text-sm font-medium">Posts</div>
                             </div>
                             <div className="text-center cursor-pointer hover:scale-105 transition-transform duration-300">
-                                <div className="text-2xl font-bold text-white mb-1">{(userData.followers.length)}</div>
+                                <div className="text-2xl font-bold text-white mb-1">{(profileUser.followers.length)}</div>
                                 <div className="text-white/60 text-sm font-medium">Followers</div>
                             </div>
                             <div className="text-center cursor-pointer hover:scale-105 transition-transform duration-300">
-                                <div className="text-2xl font-bold text-white mb-1">{(userData.following.length)}</div>
+                                <div className="text-2xl font-bold text-white mb-1">{(profileUser.following.length)}</div>
                                 <div className="text-white/60 text-sm font-medium">Following</div>
                             </div>
                         </div>
@@ -163,7 +191,7 @@ export default function ProfilePage() {
                                 <Grid className="w-5 h-5" />
                                 Posts
                             </button>
-                            {selfProfile&&(<button
+                            {selfProfile && (<button
                                 onClick={() => setActiveTab('saved')}
                                 className={` flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-r-2xl font-medium transition-all duration-300 ${activeTab === 'saved'
                                     ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-white border-b-2 border-purple-400'
@@ -180,21 +208,21 @@ export default function ProfilePage() {
                     {(activeTab === 'posts' && post != null) ? (
                         post.length > 0 ? (
                             post.map((val, index) => (
-                                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} />
+                                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} />
                             ))
                         ) : (
                             <div className="text-center py-16">
                                 <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl border border-white/20 p-12 max-w-md mx-auto">
-                                    
+
                                     <h3 className="text-xl font-semibold text-white mb-2">No posts yet</h3>
-                                
+
                                 </div>
                             </div>
                         )
                     ) : null}
 
 
-                    {activeTab === 'saved'&& (
+                    {activeTab === 'saved' && (
                         <div className="text-center py-16">
                             <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl border border-white/20 p-12 max-w-md mx-auto">
                                 <Bookmark className="w-16 h-16 text-white/50 mx-auto mb-4" />
