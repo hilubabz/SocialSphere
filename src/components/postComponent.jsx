@@ -7,11 +7,11 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useUserData } from "@/context/userContext"
 
-export default function Post({ postData, userId, setPost, selfProfile }) {
+export default function Post({ postData, userId, setPost, selfProfile, comment,setComment,like,setLike }) {
   const { userData, setUserData } = useUserData()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
-  const [comment, setComment] = useState([])
+  // const [comment, setComment] = useState([])
   const [isFollower, setIsFollower] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
   const latestCommentRef = useRef(null)
@@ -38,6 +38,7 @@ export default function Post({ postData, userId, setPost, selfProfile }) {
   }, [])
 
   const fetchComment = async () => {
+    setComment([])
     if (!postData?._id) return
     const res = await fetch(`/apis/retrieveComment?postId=${postData._id}`, {
       method: "GET",
@@ -97,6 +98,7 @@ export default function Post({ postData, userId, setPost, selfProfile }) {
         )
       }
     }
+    setLike(prev=>prev+1)
   }
 
   const toggleComments = () => {
@@ -285,7 +287,7 @@ export default function Post({ postData, userId, setPost, selfProfile }) {
                   <button
                     type="submit"
                     disabled={!newComment.trim()}
-                    className="absolute right-3 top-1/3 transform -translate-y-1/2 text-white/60 hover:text-emerald-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-emerald-400 transition-colors p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4" />
                   </button>

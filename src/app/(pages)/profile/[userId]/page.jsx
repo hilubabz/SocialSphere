@@ -89,7 +89,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Profile Picture */}
-            <div className="absolute -bottom-16 left-8">
+            <div className="absolute -bottom-16 left-8 z-10">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-emerald-500/50 bg-gray-800/60 backdrop-blur-xl">
                   <img

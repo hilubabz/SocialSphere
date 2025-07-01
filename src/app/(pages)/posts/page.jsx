@@ -12,6 +12,8 @@ export default function Page() {
   const [followingPost, setFollowingPost] = useState()
   const [postToggle, setPostToggle] = useState(false)
   const [post, setPost] = useState([])
+  const [comment,setComment]=useState([])
+  const [like,setLike]=useState(0)
   useEffect(() => {
     if (!userData?._id) return
     const getPost = async () => {
@@ -41,7 +43,7 @@ export default function Page() {
       }
     }
     getFollowingPost()
-  }, [userData])
+  }, [userData,comment,like])
   // console.log(followingPost)
 
   // console.log(post)
@@ -91,6 +93,10 @@ export default function Page() {
                 setPost={setPost}
                 followers={userData.followers}
                 following={userData.following}
+                comment={comment}
+                setComment={setComment}
+                like={like}
+                setLike={setLike}
               />
             ))}
           {postToggle &&
@@ -103,6 +109,10 @@ export default function Page() {
                 setPost={setPost}
                 followers={userData.followers}
                 following={userData.following}
+                comment={comment}
+                setComment={setComment}
+                like={like}
+                setLike={setLike}
               />
             ))}
         </div>
