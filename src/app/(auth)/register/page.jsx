@@ -24,6 +24,7 @@ export default function Page() {
   const [registered, setRegistered] = useState("")
   const [profilePicture, setProfilePicture] = useState(null)
   const [coverPicture, setCoverPicture] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   const profilePictureRef = useRef(null)
@@ -68,6 +69,7 @@ export default function Page() {
 
   const handleFirstSubmit = async (event) => {
     event.preventDefault()
+    setIsLoading(true)
     const datas = ["name", "email", "username", "dob", "gender", "password"]
     if (datas.some((val) => regInfo[val] === "") || rePassword === "") {
       setError("Fill all the fields")
@@ -89,10 +91,12 @@ export default function Page() {
         console.log(e)
       }
     }
+    setIsLoading(false)
   }
 
   const handleSecondSubmit = async (event) => {
     event.preventDefault()
+    setIsLoading(true)
     try {
       const res = await fetch("/apis/addUser", {
         method: "POST",
@@ -103,12 +107,15 @@ export default function Page() {
       })
       const data = await res.json()
       setRegistered(data.data)
-      setTimeout(() => {
-        router.push('/login')
-      }, 1000)
+      if (data.success) {
+        setTimeout(() => {
+          router.push('/login')
+        }, 1000)
+      }
     } catch (e) {
       console.log(e)
     }
+    setIsLoading(false)
   }
   console.log(regInfo)
   return (
@@ -150,8 +157,8 @@ export default function Page() {
             {/* Step 1: Registration Form */}
             <div
               className={`p-8 lg:p-12 transition-all duration-500 ease-in-out ${valid
-                  ? "transform -translate-x-full opacity-0 pointer-events-none absolute inset-0"
-                  : "transform translate-x-0 opacity-100 relative"
+                ? "transform -translate-x-full opacity-0 pointer-events-none absolute inset-0"
+                : "transform translate-x-0 opacity-100 relative"
                 }`}
             >
               <div className="max-w-md mx-auto">
@@ -174,6 +181,7 @@ export default function Page() {
                           onChange={handleChange}
                           className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                           placeholder="Enter your name"
+                          disabled={isLoading}
                           required
                         />
                       </div>
@@ -189,6 +197,7 @@ export default function Page() {
                           onChange={handleChange}
                           className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                           placeholder="Choose username"
+                          disabled={isLoading}
                           required
                         />
                       </div>
@@ -205,6 +214,7 @@ export default function Page() {
                         onChange={handleChange}
                         className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                         placeholder="Enter your email"
+                        disabled={isLoading}
                         required
                       />
                     </div>
@@ -220,6 +230,7 @@ export default function Page() {
                           name="dob"
                           onChange={handleChange}
                           className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
+                          disabled={isLoading}
                           required
                         />
                       </div>
@@ -234,6 +245,7 @@ export default function Page() {
                             name="gender"
                             value="Male"
                             onChange={handleChange}
+                            disabled={isLoading}
                             className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
                           />
                           <span className="text-gray-200">Male</span>
@@ -244,6 +256,7 @@ export default function Page() {
                             name="gender"
                             value="Female"
                             onChange={handleChange}
+                            disabled={isLoading}
                             className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
                           />
                           <span className="text-gray-200">Female</span>
@@ -262,6 +275,7 @@ export default function Page() {
                         onChange={handleChange}
                         className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                         placeholder="Create password"
+                        disabled={isLoading}
                         required
                       />
                     </div>
@@ -277,6 +291,7 @@ export default function Page() {
                         onChange={handleRePass}
                         className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                         placeholder="Confirm password"
+                        disabled={isLoading}
                         required
                       />
                     </div>
@@ -291,10 +306,20 @@ export default function Page() {
                   <button
                     type="submit"
                     className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                    disabled={isLoading}
                     onClick={handleFirstSubmit}
                   >
-                    <span>Continue</span>
-                    <ArrowRight className="w-4 h-4" />
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Please Wait...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ArrowRight className="w-5 h-5" />
+                        <span>Continue</span>
+                      </>
+                    )}
                   </button>
 
                   <div className="text-center text-gray-400">
@@ -310,8 +335,8 @@ export default function Page() {
             {/* Step 2: Profile Setup */}
             <div
               className={`p-12 transition-all duration-500 ease-in-out w-[40rem] ${valid
-                  ? "transform translate-x-0 opacity-100 relative"
-                  : "transform translate-x-full opacity-0 pointer-events-none absolute inset-0"
+                ? "transform translate-x-0 opacity-100 relative"
+                : "transform translate-x-full opacity-0 pointer-events-none absolute inset-0"
                 }`}
             >
               <div className="mx-auto">
@@ -331,6 +356,7 @@ export default function Page() {
                       name="coverPicture"
                       onChange={handleFile}
                       ref={coverPictureRef}
+                      disabled={isLoading}
                       className="hidden"
                     />
                     <div
@@ -358,6 +384,7 @@ export default function Page() {
                       name="profilePicture"
                       onChange={handleFile}
                       ref={profilePictureRef}
+                      disabled={isLoading}
                       className="hidden"
                     />
                     <div
@@ -394,15 +421,27 @@ export default function Page() {
                         onChange={handleChange}
                         placeholder="Tell us about yourself..."
                         className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none h-20 text-gray-100 placeholder-gray-400"
+                        disabled={isLoading}
                       />
                     </div>
 
                     <button
                       type="submit"
                       className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                      disabled={isLoading}
                       onClick={handleSecondSubmit}
                     >
-                      Complete Registration
+                      {isLoading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Registering...</span>
+                        </>
+                      ) : (
+                        <>
+                          {/* <ArrowRight className="w-5 h-5" /> */}
+                          <span>Register</span>
+                        </>
+                      )}
                     </button>
 
                     {registered && (
