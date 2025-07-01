@@ -48,9 +48,9 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Main Content */}
+     
       <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto p-4 pt-6">
-        {/* Left Sidebar */}
+    
         <div className="col-span-3 space-y-4 sticky top-20 self-start">
           <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/40 shadow-xl">
             <div className="flex items-center space-x-2 mb-4">
@@ -75,11 +75,11 @@ export default function Page() {
           </div>
         </div>
 
-        {/* Main Feed */}
+       
         <div className="col-span-6 space-y-6">
           <CreatePost />
 
-          {/* Post */}
+        
 
           {!postToggle &&
             post &&
@@ -107,10 +107,10 @@ export default function Page() {
             ))}
         </div>
 
-        {/* Right Sidebar */}
-        <div className="col-span-3 space-y-4 sticky top-20 self-start">
+        
+        {/* <div className="col-span-3 space-y-4 sticky top-20 self-start">
           <FollowCard />
-        </div>
+        </div> */}
       </div>
     </div>
   )

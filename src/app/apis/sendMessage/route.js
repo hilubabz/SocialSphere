@@ -7,7 +7,7 @@ export async function POST(request){
     try{
         await dbConnect();
         const data=await request.json()
-        const addMessage=await Message.create({senderId:data.userId, receiverId:data.receiverId, message:data.message})
+        const addMessage=await Message.create({senderId:data.senderId, receiverId:data.receiverId, message:data.message})
         if(addMessage){
             return NextResponse.json({success:true,message:'Message Sent'},{status:200})
         }
@@ -17,5 +17,6 @@ export async function POST(request){
     }
     catch(error){
         console.log(error)
+        return NextResponse.json({success:false,message:error.message},{status:400})
     }
 }

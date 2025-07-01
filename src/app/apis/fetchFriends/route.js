@@ -15,13 +15,13 @@ export async function GET(request) {
   const user = await User.findById(userId).lean();
   if (!user) return NextResponse.json({ error: 'User not found' });
 
-  // 1️⃣ Compute intersection of IDs
+  
   const followersSet = new Set(user.followers.map(String));
   const mutualIds = user.following
     .map(String)
     .filter(id => followersSet.has(id));
 
-  // 2️⃣ Fetch those users’ profiles
+  
   const mutualProfiles = await User.find(
     { _id: { $in: mutualIds } },
     '_id name username profilePicture'

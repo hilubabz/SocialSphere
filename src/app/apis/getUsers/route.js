@@ -8,7 +8,7 @@ export async function GET(request) {
     // Connect to DB
     await dbConnect();
 
-    // Extract userId from query
+   
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
 

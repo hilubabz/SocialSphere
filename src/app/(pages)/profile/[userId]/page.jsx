@@ -125,11 +125,11 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {selfProfile && (
+              {/* {selfProfile && (
                 <button className="bg-gray-700/60 backdrop-blur-sm border border-gray-600/50 rounded-full p-3 text-white hover:bg-gray-600/70 transition-all duration-300">
                   <Settings className="w-5 h-5" />
                 </button>
-              )}
+              )} */}
               {!selfProfile && (
                 <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
                   <UserPlus className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function ProfilePage() {
                 <Grid className="w-5 h-5" />
                 Posts
               </button>
-              {selfProfile && (
+              {/* {selfProfile && (
                 <button
                   onClick={() => setActiveTab("saved")}
                   className={` flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-r-2xl font-medium transition-all duration-300 ${
@@ -196,7 +196,7 @@ export default function ProfilePage() {
                   <Bookmark className="w-5 h-5" />
                   Saved
                 </button>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -215,7 +215,7 @@ export default function ProfilePage() {
             )
           ) : null}
 
-          {activeTab === "saved" && (
+          {/* {activeTab === "saved" && (
             <div className="text-center py-16">
               <div className="bg-gray-800/60 backdrop-blur-lg rounded-3xl border border-gray-700/40 p-12 max-w-md mx-auto shadow-xl">
                 <Bookmark className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -223,7 +223,7 @@ export default function ProfilePage() {
                 <p className="text-gray-400">Posts you save will appear here</p>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     )

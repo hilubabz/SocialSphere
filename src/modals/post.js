@@ -1,14 +1,11 @@
-
 const mongoose = require("mongoose");
-
 const commentSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     text: { type: String, required: true },
   },
-  { timestamps: true } // ✅ Adds createdAt and updatedAt to each comment
+  { timestamps: true }
 );
-
 const postSchema = new mongoose.Schema(
   {
     userId: {
@@ -21,7 +18,7 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     photo: {
-      type: [String], // You can make this more specific
+      type: [String], 
       required: false,
     },
     likes: [
@@ -30,9 +27,9 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       }
     ],
-    comments: [commentSchema], // ✅ structured comment array
+    comments: [commentSchema], 
   },
-  { timestamps: true } // For the post itself
+  { timestamps: true } 
 );
 
 

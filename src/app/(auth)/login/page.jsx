@@ -1,19 +1,24 @@
 "use client"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { User, Lock, LogIn } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { io } from "socket.io-client"
 
+let socket
 export default function Page() {
   const [login, setLogin] = useState({ username: "", password: "" })
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [id,setId]=useState(null)
   const router = useRouter()
 
+
+  
   const handleChange = (event) => {
     const { name, value } = event.target
     setLogin({ ...login, [name]: value })
-    // Clear error when user starts typing
+    
     if (error) setError("")
   }
 
@@ -38,9 +43,10 @@ export default function Page() {
         if (res.success) {
           setError("Login Successful")
           sessionStorage.setItem("login", JSON.stringify(res.data))
+          setId(res.data)
           setTimeout(() => {
             router.push("/posts")
-          }, 2000)
+          }, 1000)
         } else {
           setError("Invalid Credentials")
         }

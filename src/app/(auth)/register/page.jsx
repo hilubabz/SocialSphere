@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { useState, useRef } from "react"
 import { User, Mail, Lock, Calendar, Upload, Camera, ArrowRight, Check } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 
 export default function Page() {
   const [regInfo, setRegInfo] = useState({
@@ -22,6 +24,7 @@ export default function Page() {
   const [registered, setRegistered] = useState("")
   const [profilePicture, setProfilePicture] = useState(null)
   const [coverPicture, setCoverPicture] = useState(null)
+  const router=useRouter()
 
   const profilePictureRef = useRef(null)
   const coverPictureRef = useRef(null)
@@ -93,11 +96,14 @@ export default function Page() {
       })
       const data = await res.json()
       setRegistered(data.data)
+      setTimeout(()=>{
+        router.push('/login')
+      },1000)
     } catch (e) {
       console.log(e)
     }
   }
-
+  console.log(regInfo)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4 overflow-hidden">
       <div className="shadow-2xl shadow-emerald-500/10 rounded-2xl">
@@ -299,13 +305,13 @@ export default function Page() {
 
             {/* Step 2: Profile Setup */}
             <div
-              className={`p-8 lg:p-12 transition-all duration-500 ease-in-out ${
+              className={`p-12 transition-all duration-500 ease-in-out w-[40rem] ${
                 valid
                   ? "transform translate-x-0 opacity-100 relative"
                   : "transform translate-x-full opacity-0 pointer-events-none absolute inset-0"
               }`}
             >
-              <div className="max-w-lg mx-auto">
+              <div className="mx-auto">
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent mb-2">
                     Setup Profile

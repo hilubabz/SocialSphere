@@ -198,16 +198,16 @@ export default function Post({ postData, userId, setPost, selfProfile }) {
                 </div>
                 <span className="text-sm font-medium">{postData.comments.length} Comments</span>
               </button>
-              <button className="flex items-center space-x-2 text-white/70 hover:text-emerald-400 transition-colors group">
+              {/* <button className="flex items-center space-x-2 text-white/70 hover:text-emerald-400 transition-colors group">
                 <div className="p-2 rounded-full group-hover:bg-emerald-500/10 transition-colors">
                   <Share className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium">Share</span>
-              </button>
+              </button> */}
             </div>
-            <button className="text-white/70 hover:text-emerald-400 transition-colors p-2 rounded-full hover:bg-emerald-500/10">
+            {/* <button className="text-white/70 hover:text-emerald-400 transition-colors p-2 rounded-full hover:bg-emerald-500/10">
               <Bookmark className="w-5 h-5" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -267,7 +267,7 @@ export default function Post({ postData, userId, setPost, selfProfile }) {
                 <div className="h-10 w-10 rounded-full overflow-hidden ring-2 ring-emerald-400/50 flex-shrink-0">
                   <img
                     src={
-                      postData.userId?.profilePicture ||
+                      userData?.profilePicture ||
                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face"
                     }
                     className="h-full w-full object-cover"

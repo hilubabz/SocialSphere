@@ -3,11 +3,39 @@ import { Search, Home, Bell, Mail, User } from "lucide-react";
 import { useEffect, useState, useContext } from "react";
 import { useUserData } from "@/context/userContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { io } from "socket.io-client";
+import { toast } from "sonner";
 
 
+let socket
 export default function Navbar() {
-  const {userData, setUserData} = useUserData({});
-  const [nav,setNav]=useState(1)
+  const { userData, setUserData } = useUserData(false);
+  const [nav, setNav] = useState(1)
+  const [logOut, setLogOut] = useState(false)
+  const route = useRouter()
+
+  
+  useEffect(() => {
+    socket = io()
+    socket.on('connect', () => console.log('Socket Connected', socket.id))
+
+    socket.on('message', (message) => {
+      // console.log('"'+message.receiverId+'"')
+      // console.log(sessionStorage.getItem('login'))
+      // console.log('"'+message.receiverId+'"'==sessionStorage.getItem('login'))
+      // console.log()
+      if ('"'+message.receiverId+'"' === sessionStorage.getItem('login')) { 
+      toast("Event has been created", {
+        description: `Message from ${message.name} : ${message.message}`,
+        action: {
+          label: "Undo",
+          onClick: () => console.log("Undo"),
+        },
+      })}
+    })
+
+  }, [])
 
   const fetchUserData = async (userId) => {
     try {
@@ -17,9 +45,10 @@ export default function Navbar() {
       });
 
       const data = await response.json();
-    //   console.log(data)
+      //   console.log(data)
       if (data.success) {
         setUserData(data.data);
+        socket.emit('online', data.data._id)
       } else {
         console.error("Failed to fetch user data:", data.message);
       }
@@ -35,6 +64,17 @@ export default function Navbar() {
     }
   }, []);
   // console.log(userData)
+
+  const logOutUser = () => {
+    // console.log(userData._id)
+    socket.emit('offline', userData._id)
+    socket.disconnect()
+    sessionStorage.removeItem('login')
+    setUserData('')
+    route.push('/login')
+
+  }
+
   return (
     <nav className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 shadow-xl sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -49,7 +89,7 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-8">
-            <Link href={'/posts'} className={`flex items-center space-x-2 text-white/70 hover:text-emerald-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl }`} onClick={()=>setNav(1)}>
+            <Link href={'/posts'} className={`flex items-center space-x-2 text-white/70 hover:text-emerald-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl }`} onClick={() => setNav(1)}>
               <Home className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Home</span>
             </Link>
@@ -57,10 +97,10 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Explore</span>
             </Link>
-            <Link href={'/notifications'} className="flex items-center space-x-2 text-white/70 hover:text-emerald-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
+            {/* <Link href={'/notifications'} className="flex items-center space-x-2 text-white/70 hover:text-emerald-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
               <Bell className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Notifications</span>
-            </Link>
+            </Link> */}
             <Link href={'/message'} className="flex items-center space-x-2 text-white/70 hover:text-emerald-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10">
               <Mail className="w-5 h-5" />
               <span className="font-medium hidden sm:block">Messages</span>
@@ -73,9 +113,9 @@ export default function Navbar() {
 
           {/* User Profile */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-purple-400/50 transition-all overflow-hidden">
-              {/* <User className="w-4 h-4 text-white" /> */}
-              <img src={userData.profilePicture} className="h-full w-full object-cover"/>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-purple-400/50 transition-all relative" onClick={() => setLogOut(!logOut)}>
+              <img src={userData.profilePicture} className="h-full w-full object-cover rounded-full" />
+              <div className={`absolute top-7 ${logOut ? '' : 'hidden'}`} onClick={logOutUser}>Logout</div>
             </div>
           </div>
         </div>

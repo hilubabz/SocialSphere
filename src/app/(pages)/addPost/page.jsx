@@ -2,12 +2,15 @@
 import { useState } from "react"
 import { ImagePlus, Send, Sparkles, Hash, AtSign } from "lucide-react"
 import { useUserData } from "@/context/userContext"
+import { useRouter } from "next/navigation"
+
 
 export default function Page() {
   const [caption, setCaption] = useState("")
   const [images, setImages] = useState([])
   const [isDragging, setIsDragging] = useState(false)
   const { userData, setUserData } = useUserData()
+  const router=useRouter()
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files)
@@ -66,7 +69,9 @@ export default function Page() {
       }),
     })
     const data = await res.json()
-    console.log(data.message)
+    if(data.success){
+      router.push('/posts')
+    }
   }
 
   return (
@@ -146,8 +151,8 @@ export default function Page() {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
               <ImagePlus className="mx-auto mb-4 text-emerald-400 w-12 h-12" />
-              <p className="text-white mb-2 text-lg">Drag & drop images here</p>
-              <p className="text-gray-400 text-sm">or click to browse</p>
+              {/* <p className="text-white mb-2 text-lg">Drag & drop images here</p> */}
+              <p className="text-gray-400 text-sm">Click to browse</p>
             </div>
           </div>
           <div className="flex justify-end">

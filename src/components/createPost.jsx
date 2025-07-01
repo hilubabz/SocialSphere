@@ -1,8 +1,12 @@
 "use client"
 import { useUserData } from "@/context/userContext"
+import Link from "next/link"
+
+
 
 export default function CreatePost() {
   const { userData, setUserData } = useUserData()
+  
   return (
     <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/40 shadow-xl">
       <div className="flex items-center space-x-4">
@@ -16,9 +20,9 @@ export default function CreatePost() {
         <div className="flex-1 bg-gray-700/50 rounded-full px-4 py-3 cursor-pointer hover:bg-gray-700/70 transition-colors">
           <span className="text-gray-300">What's happening?</span>
         </div>
-        <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+        <Link href={'/addPost'} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
           Post
-        </button>
+        </Link>
       </div>
     </div>
   )

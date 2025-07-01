@@ -6,12 +6,11 @@ export async function GET(request) {
   await dbConnect()
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId");
-  const friendId = searchParams.get("friendId");
 
   const messages = await Message.find({
     $or: [
-      { senderId: userId, receiverId: friendId },
-      { senderId: friendId, receiverId: userId },
+      { senderId: userId },
+      { receiverId: userId },
     ],
   }).sort({ createdAt: 1 }); 
 
