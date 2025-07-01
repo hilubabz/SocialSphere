@@ -229,7 +229,7 @@ export default function ChatPage() {
                             <button
                                 onClick={() => sendMessage(selectedUser._id)}
                                 disabled={!input.trim()}
-                                className="absolute right-2 top-1/5 transform -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-2 rounded-full hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-2 rounded-full hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
                                 <Send className="w-4 h-4" />
                             </button>

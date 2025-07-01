@@ -362,7 +362,7 @@ export default function Page() {
                     />
                     <div
                       onClick={() => profilePictureRef.current.click()}
-                      className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full border-4 border-gray-800 bg-gradient-to-br from-gray-700 to-gray-600 cursor-pointer hover:from-gray-600 hover:to-gray-500 transition-all duration-200 overflow-hidden group shadow-lg"
+                      className="absolute -bottom-12 left-1/2 transform-translate-x-1/2 w-24 h-24 rounded-full border-4 border-gray-800 bg-gradient-to-br from-gray-700 to-gray-600 cursor-pointer hover:from-gray-600 hover:to-gray-500 transition-all duration-200 overflow-hidden group shadow-lg"
                       style={{ marginLeft: "-3rem" }}
                     >
                       {profilePicture ? (
