@@ -1,6 +1,7 @@
 "use client";
 import { Search, Home, Bell, Mail, User } from "lucide-react";
 import { useEffect, useState, useContext } from "react";
+import { usePathname } from "next/navigation";
 import { useUserData } from "@/context/userContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,12 +9,15 @@ import { io } from "socket.io-client";
 import { toast } from "sonner";
 
 
+
 let socket
+
 export default function Navbar() {
   const { userData, setUserData } = useUserData(false);
   const [nav, setNav] = useState(1)
   const [logOut, setLogOut] = useState(false)
   const route = useRouter()
+  const pathname = usePathname();
 
   
   useEffect(() => {
@@ -25,17 +29,16 @@ export default function Navbar() {
       // console.log(sessionStorage.getItem('login'))
       // console.log('"'+message.receiverId+'"'==sessionStorage.getItem('login'))
       // console.log()
-      if ('"'+message.receiverId+'"' === sessionStorage.getItem('login')) { 
-      toast("Event has been created", {
-        description: `Message from ${message.name} : ${message.message}`,
-        action: {
-          label: "Undo",
-          onClick: () => console.log("Undo"),
-        },
-      })}
+      if ('"'+message.receiverId+'"' === sessionStorage.getItem('login')) {
+        if (!pathname.startsWith("/message")) {
+          toast("New Message", {
+            description: `${message.senderName} : ${message.msg}`,
+          })
+        }
+      }
     })
 
-  }, [])
+  }, [pathname])
 
   const fetchUserData = async (userId) => {
     try {

@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useUserData } from "@/context/userContext"
 
-export default function Post({ postData, userId, setPost, selfProfile, comment,setComment,like,setLike }) {
+export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow }) {
   const { userData, setUserData } = useUserData()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
@@ -68,9 +68,9 @@ export default function Post({ postData, userId, setPost, selfProfile, comment,s
           prevPosts.map((post) =>
             post._id === postData._id
               ? {
-                  ...post,
-                  likes: post.likes.filter((id) => id !== userId),
-                }
+                ...post,
+                likes: post.likes.filter((id) => id !== userId),
+              }
               : post,
           ),
         )
@@ -90,15 +90,15 @@ export default function Post({ postData, userId, setPost, selfProfile, comment,s
           prevPosts.map((post) =>
             post._id === postData._id
               ? {
-                  ...post,
-                  likes: [...post.likes, userId],
-                }
+                ...post,
+                likes: [...post.likes, userId],
+              }
               : post,
           ),
         )
       }
     }
-    setLike(prev=>prev+1)
+    setLike(prev => prev + 1)
   }
 
   const toggleComments = () => {
@@ -129,6 +129,50 @@ export default function Post({ postData, userId, setPost, selfProfile, comment,s
     }
   }, [comment])
 
+  const followUser = async () => {
+    try {
+      const res = await fetch('apis/followUser', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userId: userId, followedId: postData.userId._id })
+      })
+      const response = await res.json()
+      // console.log(response.message)
+      if(response.success){
+        setNewFollow(prev=>prev+1)
+        setIsFollowing(true);
+        
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
+  const unfollowUser = async () => {
+    try {
+      const res = await fetch('apis/unfollowUser', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ userId: userId, followedId: postData.userId._id })
+      })
+      const response = await res.json()
+      // console.log(response.message)
+      if(response.success){
+        setNewFollow(prev=>prev+1)
+        setIsFollowing(false);
+        
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <>
       <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl border border-gray-700/40 shadow-xl overflow-hidden">
@@ -156,13 +200,35 @@ export default function Post({ postData, userId, setPost, selfProfile, comment,s
           </div>
           <div className="flex items-center space-x-3">
             {!selfProfile && (
-              <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
-                <UserPlus className="w-4 h-4" />
-                {!isFollowing && !isFollower && <span>Follow</span>}
-                {isFollowing && !isFollower && <span>Following</span>}
-                {!isFollowing && isFollower && <span>Follow Back</span>}
-                {isFollower && isFollowing && <span>Friends</span>}
-              </button>
+              <div className="space-x-2">
+                {!isFollowing && !isFollower && (
+                  <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2" onClick={followUser}>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Follow</span>
+                  </button>
+                )}
+
+                {isFollowing && !isFollower && (
+                  <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2" onClick={unfollowUser}>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Following</span>
+                  </button>
+                )}
+
+                {!isFollowing && isFollower && (
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2" onClick={followUser}>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Follow Back</span>
+                  </button>
+                )}
+
+                {isFollower && isFollowing && (
+                  <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2" onClick={unfollowUser}>
+                    <UserPlus className="w-4 h-4" />
+                    <span>Friends</span>
+                  </button>
+                )}
+              </div>
             )}
             <button className="text-white/60 hover:text-white p-2 rounded-full hover:bg-gray-700/50 transition-colors">
               <MoreHorizontal className="w-5 h-5" />

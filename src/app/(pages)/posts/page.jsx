@@ -14,6 +14,10 @@ export default function Page() {
   const [post, setPost] = useState([])
   const [comment,setComment]=useState([])
   const [like,setLike]=useState(0)
+  const [followers,setFollowers]=useState([])
+  const [following,setFollowing]=useState([])
+  const [newFollow,setNewFollow]=useState(0)
+
   useEffect(() => {
     if (!userData?._id) return
     const getPost = async () => {
@@ -48,6 +52,33 @@ export default function Page() {
 
   // console.log(post)
 
+  useEffect(()=>{
+    const fetchFollowerFollowing=async()=>{
+      try{
+        if(!userData) return
+        const res=await fetch(`/apis/fetchFollowerFollowing?userId=${userData._id}`,{
+          method:"GET",
+          headers:{
+            'Content-Type':'application/json'
+          }
+        })
+        const response=await res.json()
+        if(response.success){
+          const data=response.data
+          setFollowers(data.followers)
+          setFollowing(data.following)
+        }
+        else{
+          console.log("Error fetching followers and following")
+        }
+      }
+      catch(e){
+        console.log(e)
+      }
+    }
+    fetchFollowerFollowing()
+  },[userData,newFollow])
+  // console.log(followers,following)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
      
@@ -91,12 +122,13 @@ export default function Page() {
                 postData={val}
                 userId={userData._id}
                 setPost={setPost}
-                followers={userData.followers}
-                following={userData.following}
+                followers={followers}
+                following={following}
                 comment={comment}
                 setComment={setComment}
                 like={like}
                 setLike={setLike}
+                setNewFollow={setNewFollow}
               />
             ))}
           {postToggle &&
@@ -107,12 +139,13 @@ export default function Page() {
                 postData={val}
                 userId={userData._id}
                 setPost={setPost}
-                followers={userData.followers}
-                following={userData.following}
+                followers={followers}
+                following={following}
                 comment={comment}
                 setComment={setComment}
                 like={like}
                 setLike={setLike}
+                setNewFollow={setNewFollow}
               />
             ))}
         </div>

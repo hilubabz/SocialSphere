@@ -117,7 +117,7 @@ export default function ChatPage() {
             })
             const result = await res.json()
             if (result.success) {
-                socket.emit('message', { senderId: userData._id, receiverId: receiverId })
+                socket.emit('message', { senderName: userData.name, receiverId: receiverId,msg:input })
                 setInput('')
                 setCheckSentMessage(!checkSentMessage)
             }
