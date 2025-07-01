@@ -10,23 +10,34 @@ export default function Page() {
   const [images, setImages] = useState([])
   const [isDragging, setIsDragging] = useState(false)
   const { userData, setUserData } = useUserData()
-  const router=useRouter()
+  const router = useRouter()
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files)
-    files.forEach((file) => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (reader.result) {
-          const mimeType = file.type
-          const base64 = reader.result.split(",")[1]
-          const dataUrl = `data:${mimeType};base64,${base64}`
-          setImages((prev) => [...prev, dataUrl])
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/apis/uploadImage", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (data.url) {
+          setImages((prev) => [...prev, data.url]); 
+        } else {
+          console.error("Upload failed:", data);
         }
+      } catch (err) {
+        console.error("Image upload error:", err);
       }
-      reader.readAsDataURL(file)
-    })
-  }
+    }
+  };
+
 
   const handleDragOver = (e) => {
     e.preventDefault()
@@ -69,7 +80,7 @@ export default function Page() {
       }),
     })
     const data = await res.json()
-    if(data.success){
+    if (data.success) {
       router.push('/posts')
     }
   }
@@ -136,9 +147,8 @@ export default function Page() {
 
             {/* Upload Area */}
             <div
-              className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
-                isDragging ? "border-emerald-400 bg-emerald-900/20" : "border-gray-600 bg-gray-700/50 hover:bg-gray-700"
-              }`}
+              className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${isDragging ? "border-emerald-400 bg-emerald-900/20" : "border-gray-600 bg-gray-700/50 hover:bg-gray-700"
+                }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -156,14 +166,14 @@ export default function Page() {
             </div>
           </div>
           <div className="flex justify-end">
-          <button
-            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            disabled={!caption.trim() && images.length === 0}
-            onClick={handleSubmit}
-          >
-            <Send className="w-5 h-5" />
-            Share Post
-          </button>
+            <button
+              className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              disabled={!caption.trim() && images.length === 0}
+              onClick={handleSubmit}
+            >
+              <Send className="w-5 h-5" />
+              Share Post
+            </button>
           </div>
         </div>
       </div>

@@ -24,7 +24,7 @@ export default function Page() {
   const [registered, setRegistered] = useState("")
   const [profilePicture, setProfilePicture] = useState(null)
   const [coverPicture, setCoverPicture] = useState(null)
-  const router=useRouter()
+  const router = useRouter()
 
   const profilePictureRef = useRef(null)
   const coverPictureRef = useRef(null)
@@ -34,25 +34,32 @@ export default function Page() {
     setRegInfo({ ...regInfo, [name]: value })
   }
 
-  const handleFile = (event) => {
-    const file = event.target.files[0]
-    const photoName = event.target.name
+  const handleFile = async (event) => {
+    const file = event.target.files[0];
+    const photoName = event.target.name;
 
     if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (reader.result) {
-          const mimeType = file.type
-          const base64 = reader.result.split(",")[1]
-          const dataUrl = `data:${mimeType};base64,${base64}`
-          setRegInfo({ ...regInfo, [photoName]: dataUrl })
+      const formData = new FormData();
+      formData.append("file", file);
 
-          photoName === "profilePicture" ? setProfilePicture(dataUrl) : setCoverPicture(dataUrl)
+      try {
+        const res = await fetch("/apis/uploadImage", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+
+        if (data.url) {
+          setRegInfo((prev) => ({ ...prev, [photoName]: data.url }));
+          if (photoName === "profilePicture") setProfilePicture(data.url);
+          else setCoverPicture(data.url);
         }
+      } catch (err) {
+        console.error("Image upload failed:", err);
       }
-      reader.readAsDataURL(file)
     }
-  }
+  };
+
 
   const handleRePass = (event) => {
     const val = event.target.value
@@ -96,9 +103,9 @@ export default function Page() {
       })
       const data = await res.json()
       setRegistered(data.data)
-      setTimeout(()=>{
+      setTimeout(() => {
         router.push('/login')
-      },1000)
+      }, 1000)
     } catch (e) {
       console.log(e)
     }
@@ -113,9 +120,8 @@ export default function Page() {
             <div className="flex items-center justify-center space-x-4">
               <div className="flex items-center">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
-                    !valid ? "bg-emerald-500 text-white" : "bg-green-500 text-white"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${!valid ? "bg-emerald-500 text-white" : "bg-green-500 text-white"
+                    }`}
                 >
                   {!valid ? "1" : <Check className="w-4 h-4" />}
                 </div>
@@ -126,9 +132,8 @@ export default function Page() {
               ></div>
               <div className="flex items-center">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
-                    valid ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-500"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${valid ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-500"
+                    }`}
                 >
                   2
                 </div>
@@ -144,11 +149,10 @@ export default function Page() {
           <div className="relative">
             {/* Step 1: Registration Form */}
             <div
-              className={`p-8 lg:p-12 transition-all duration-500 ease-in-out ${
-                valid
+              className={`p-8 lg:p-12 transition-all duration-500 ease-in-out ${valid
                   ? "transform -translate-x-full opacity-0 pointer-events-none absolute inset-0"
                   : "transform translate-x-0 opacity-100 relative"
-              }`}
+                }`}
             >
               <div className="max-w-md mx-auto">
                 <div className="text-center mb-8">
@@ -163,7 +167,7 @@ export default function Page() {
                     <div className="space-y-2">
                       <label className="text-gray-200 text-sm font-medium">Full Name</label>
                       <div className="relative">
-                        <User className="text-emerald-500 w-5 h-5 absolute left-3 top-1/3 transform -translate-y-1/2" />
+                        <User className="text-emerald-500 w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2" />
                         <input
                           type="text"
                           name="name"
@@ -178,7 +182,7 @@ export default function Page() {
                     <div className="space-y-2">
                       <label className="text-gray-200 text-sm font-medium">Username</label>
                       <div className="relative">
-                        <User className="text-emerald-500 w-5 h-5 absolute left-3 top-1/3 transform -translate-y-1/2" />
+                        <User className="text-emerald-500 w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2" />
                         <input
                           type="text"
                           name="username"
@@ -194,7 +198,7 @@ export default function Page() {
                   <div className="space-y-2">
                     <label className="text-gray-200 text-sm font-medium">Email Address</label>
                     <div className="relative">
-                      <Mail className="text-emerald-500 w-5 h-5 absolute left-3 top-1/3 transform -translate-y-1/2" />
+                      <Mail className="text-emerald-500 w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2" />
                       <input
                         type="email"
                         name="email"
@@ -210,7 +214,7 @@ export default function Page() {
                     <div className="space-y-2">
                       <label className="text-gray-200 text-sm font-medium">Date of Birth</label>
                       <div className="relative">
-                        <Calendar className="text-emerald-500 w-5 h-5 absolute left-3 top-1/3 transform -translate-y-1/2" />
+                        <Calendar className="text-emerald-500 w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2" />
                         <input
                           type="date"
                           name="dob"
@@ -251,7 +255,7 @@ export default function Page() {
                   <div className="space-y-2">
                     <label className="text-gray-200 text-sm font-medium">Password</label>
                     <div className="relative">
-                      <Lock className="text-emerald-500 w-5 h-5 absolute left-3 top-1/3 transform -translate-y-1/2" />
+                      <Lock className="text-emerald-500 w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2" />
                       <input
                         type="password"
                         name="password"
@@ -266,7 +270,7 @@ export default function Page() {
                   <div className="space-y-2">
                     <label className="text-gray-200 text-sm font-medium">Confirm Password</label>
                     <div className="relative">
-                      <Lock className="text-emerald-500 w-5 h-5 absolute left-3 top-1/3 transform -translate-y-1/2" />
+                      <Lock className="text-emerald-500 w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2" />
                       <input
                         type="password"
                         name="rePassword"
@@ -305,11 +309,10 @@ export default function Page() {
 
             {/* Step 2: Profile Setup */}
             <div
-              className={`p-12 transition-all duration-500 ease-in-out w-[40rem] ${
-                valid
+              className={`p-12 transition-all duration-500 ease-in-out w-[40rem] ${valid
                   ? "transform translate-x-0 opacity-100 relative"
                   : "transform translate-x-full opacity-0 pointer-events-none absolute inset-0"
-              }`}
+                }`}
             >
               <div className="mx-auto">
                 <div className="text-center mb-8">
