@@ -101,7 +101,8 @@ export default function ChatPage() {
     }, [selectedUserMessage]);
 
 
-    const sendMessage = async (receiverId) => {
+    const sendMessage = async (e,receiverId) => {
+        e.preventDefault()
         try {
             const res = await fetch('/apis/sendMessage', {
                 method: "POST",
@@ -218,7 +219,7 @@ export default function ChatPage() {
                 {/* Message Input */}
                 <div className="p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 sticky bottom-0">
                     <div className="flex items-center space-x-3">
-                        <div className="flex-1 relative">
+                        <form className="flex-1 relative" onSubmit={(e)=>sendMessage(e,selectedUser._id)}>
                             <input
                                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full focus:ring-emerald-400 focus:border-emerald-400 pr-12 text-white placeholder-gray-400"
                                 placeholder={`Message ${selectedUser.name}...`}
@@ -227,13 +228,13 @@ export default function ChatPage() {
 
                             />
                             <button
-                                onClick={() => sendMessage(selectedUser._id)}
+                                onClick={(e) => sendMessage(e,selectedUser._id)}
                                 disabled={!input.trim()}
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-2 rounded-full hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
                                 <Send className="w-4 h-4" />
                             </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>)}
