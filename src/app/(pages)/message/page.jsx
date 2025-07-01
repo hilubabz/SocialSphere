@@ -79,7 +79,7 @@ export default function ChatPage() {
         })
         socket.on('message', (msg) => {
             if (userData._id == msg.receiverId) {
-                console.log(msg.senderId, msg.receiverId)
+                console.log(msg.receiverId)
                 setNewMessage(prev => prev + 1)
             }
         })
