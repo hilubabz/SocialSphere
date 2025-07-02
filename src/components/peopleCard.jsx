@@ -1,5 +1,6 @@
 "use client"
-import { X, UserPlus } from 'lucide-react';
+import { X, UserPlus} from 'lucide-react';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 export default function PeopleCard({ person, userId, check, setCheck }) {
@@ -60,7 +61,7 @@ export default function PeopleCard({ person, userId, check, setCheck }) {
 
         {/* User Info */}
         <div className="mb-4">
-          <h3 className="text-white text-base font-bold mb-1 tracking-tight">{person.username}</h3>
+          <Link href={`/profile/${person._id}`}><h3 className="text-white text-base font-bold mb-1 tracking-tight">{person.username}</h3></Link>
           <p className="text-emerald-400 text-sm mb-2 font-medium">{person.name}</p>
 
           {person.mutualFollowers.length != 0 && (

@@ -71,7 +71,7 @@ export default function Page() {
             {/* Header */}
             <div className="text-center mb-8">
               <div className="flex items-center justify-center w-24 h-16 rounded-2xl mb-4 shadow-lg mx-auto">
-                <img src="/logo.png" className="h-25 w-[150px]" alt="Logo" />
+                <img src="/Logo.png" className="h-25 w-[150px]" alt="Logo" />
               </div>
               <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
               <p className="text-slate-300">Sign in to your account</p>
