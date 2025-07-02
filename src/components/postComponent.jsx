@@ -30,13 +30,16 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
   }, [showComments])
 
   useEffect(() => {
-    if (userData.followers.includes(postData.userId?._id)) {
-      setIsFollower(true)
+    if (!userData) return;
+    setIsFollower(false);
+    setIsFollowing(false);
+    if (Array.isArray(userData.followers) && userData.followers.includes(postData.userId?._id)) {
+      setIsFollower(true);
     }
-    if (userData.following.includes(postData.userId?._id)) {
-      setIsFollowing(true)
+    if (Array.isArray(userData.following) && userData.following.includes(postData.userId?._id)) {
+      setIsFollowing(true);
     }
-  }, [])
+  }, [userData, postData.userId?._id]);
 
   const fetchComment = async () => {
     setComment([])

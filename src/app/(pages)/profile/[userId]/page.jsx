@@ -61,13 +61,14 @@ export default function ProfilePage() {
   }, [userId, sessionUserId])
 
   useEffect(() => {
-    if (profileUser && userData?.followers.includes(profileUser._id)) {
-      setIsFollower(true)
+    if (!userData || !profileUser) return;
+    if (Array.isArray(userData.followers) && userData.followers.includes(profileUser._id)) {
+      setIsFollower(true);
     }
-    if (profileUser && userData?.following.includes(profileUser._id)) {
-      setIsFollowing(true)
+    if (Array.isArray(userData.following) && userData.following.includes(profileUser._id)) {
+      setIsFollowing(true);
     }
-  }, [profileUser])
+  }, [profileUser, userData]);
 
   if (!profileUser) return <div className="text-white text-center mt-10">Loading...</div>
   else
