@@ -16,6 +16,8 @@ export default function ProfilePage() {
   const [selfProfile, setSelfProfile] = useState()
   const [post, setPost] = useState()
   const [sessionUserId, setSessionUserId] = useState()
+  const [comment,setComment]=useState([])
+  const [like,setLike]=useState(0)
 
   useEffect(() => {
     setSessionUserId(JSON.parse(sessionStorage.getItem("login")))
@@ -204,7 +206,7 @@ export default function ProfilePage() {
           {activeTab === "posts" && post != null ? (
             post.length > 0 ? (
               post.map((val, index) => (
-                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} />
+                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} comment={comment} setComment={setComment}/>
               ))
             ) : (
               <div className="text-center py-16">

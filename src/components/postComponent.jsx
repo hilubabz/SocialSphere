@@ -4,6 +4,7 @@ import { Heart, MessageCircle, Share, Bookmark, MoreHorizontal, UserPlus, Send, 
 import ImageSlider from "./imageSlider"
 import { formatDistanceToNow } from "date-fns"
 import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useUserData } from "@/context/userContext"
 
@@ -281,8 +282,8 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
       </div>
 
       {/* Comments Modal Overlay */}
-      {showComments && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      {showComments && typeof window !== "undefined" && createPortal(
+        <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4`}>
           <div className="bg-gray-800/90 backdrop-blur-lg rounded-2xl border border-gray-700/50 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-700/40">
@@ -361,7 +362,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
               </form>
             </div>
           </div>
-        </div>
+        </div>, document.body
       )}
     </>
   )

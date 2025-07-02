@@ -141,7 +141,7 @@ export default function ChatPage() {
                 <div className="p-4 border-b border-white/10">
                     <h1 className="text-xl font-bold text-white mb-4">Messages</h1>
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
                             type="text"
                             placeholder="Search conversations..."
