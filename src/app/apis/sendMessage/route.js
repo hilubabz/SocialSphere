@@ -9,7 +9,7 @@ export async function POST(request){
         const data=await request.json()
         const addMessage=await Message.create({senderId:data.senderId, receiverId:data.receiverId, message:data.message})
         if(addMessage){
-            return NextResponse.json({success:true,message:'Message Sent'},{status:200})
+            return NextResponse.json({success:true,message:'Message Sent',_id:addMessage._id},{status:200})
         }
         else{
             return NextResponse.json({success:false,message:'Failed to send message'},{success:400})

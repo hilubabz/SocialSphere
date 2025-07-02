@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useState, useRef } from "react"
 import { User, Mail, Lock, Calendar, Upload, Camera, ArrowRight, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
+import {toast} from "react-toastify"
+
 
 
 export default function Page() {
@@ -36,31 +38,36 @@ export default function Page() {
   }
 
   const handleFile = async (event) => {
-    setIsLoading(true)
     const file = event.target.files[0];
     const photoName = event.target.name;
 
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
+    if (!file) return;
 
-      try {
-        const res = await fetch("/apis/uploadImage", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
+    const formData = new FormData();
+    formData.append("file", file);
 
-        if (data.url) {
-          setRegInfo((prev) => ({ ...prev, [photoName]: data.url }));
-          if (photoName === "profilePicture") setProfilePicture(data.url);
-          else setCoverPicture(data.url);
-        }
-      } catch (err) {
-        console.error("Image upload failed:", err);
+    const toastId = toast.loading("Uploading image...");
+
+    try {
+      const res = await fetch("/apis/uploadImage", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        setRegInfo((prev) => ({ ...prev, [photoName]: data.url }));
+        if (photoName === "profilePicture") setProfilePicture(data.url);
+        else setCoverPicture(data.url);
+        toast.success("Upload successful!", { id: toastId });
+      } else {
+        toast.error("Upload failed", { id: toastId });
       }
+    } catch (err) {
+      console.error("Image upload failed:", err);
+      toast.error("Upload error", { id: toastId });
     }
-    setIsLoading(false)
   };
 
 

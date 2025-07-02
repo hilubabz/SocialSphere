@@ -6,8 +6,7 @@ import { useUserData } from "@/context/userContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { io } from "socket.io-client";
-import { toast } from "sonner";
-
+import { toast } from "react-toastify";
 
 
 let socket
@@ -18,22 +17,27 @@ export default function Navbar() {
   const [logOut, setLogOut] = useState(false)
   const route = useRouter()
   const pathname = usePathname();
+  // const {socket,setSocket}=useSocket()
 
-  
+
   useEffect(() => {
     socket = io()
-    socket.on('connect', () => console.log('Socket Connected', socket.id))
+    socket.on('connect', () => {
+      console.log('Socket Connected', socket.id)
+      socket.emit("online", userData._id)
+    })
 
     socket.on('message', (message) => {
       // console.log('"'+message.receiverId+'"')
       // console.log(sessionStorage.getItem('login'))
       // console.log('"'+message.receiverId+'"'==sessionStorage.getItem('login'))
       // console.log()
-      if ('"'+message.receiverId+'"' === sessionStorage.getItem('login')) {
+      if ('"' + message.receiverId + '"' === sessionStorage.getItem('login')) {
         if (!pathname.startsWith("/message")) {
-          toast("New Message", {
-            description: `${message.senderName} : ${message.msg}`,
-          })
+          toast(`New Message: ${message.senderName}: ${message.msg}`, {     
+            autoClose: 3000,                        
+          });
+          socket.emit('messageDelivered', message)
         }
       }
     })

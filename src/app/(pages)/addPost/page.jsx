@@ -3,6 +3,8 @@ import { useState } from "react"
 import { ImagePlus, Send, Sparkles, Hash, AtSign } from "lucide-react"
 import { useUserData } from "@/context/userContext"
 import { useRouter } from "next/navigation"
+import {toast} from "react-toastify"
+
 
 
 export default function Page() {
@@ -15,11 +17,15 @@ export default function Page() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
 
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("file", file);
+    if (files.length === 0) return;
 
-      try {
+    const toastId = toast.loading("Uploading images...");
+
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+
         const res = await fetch("/apis/uploadImage", {
           method: "POST",
           body: formData,
@@ -28,39 +34,20 @@ export default function Page() {
         const data = await res.json();
 
         if (data.url) {
-          setImages((prev) => [...prev, data.url]); 
+          setImages((prev) => [...prev, data.url]);
         } else {
-          console.error("Upload failed:", data);
+          throw new Error("Failed to get URL from server");
         }
-      } catch (err) {
-        console.error("Image upload error:", err);
       }
+
+      toast.success("All images uploaded!", { id: toastId });
+    } catch (err) {
+      console.error("Image upload error:", err);
+      toast.error("One or more uploads failed", { id: toastId });
     }
   };
 
 
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (e) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
-
-  const handleDrop = (e) => {
-    e.preventDefault()
-    setIsDragging(false)
-    const files = Array.from(e.dataTransfer.files)
-    files.forEach((file) => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImages((prev) => [...prev, e.target.result])
-      }
-      reader.readAsDataURL(file)
-    })
-  }
 
   const removeImage = (index) => {
     setImages((prev) => prev.filter((_, i) => i !== index))
@@ -149,9 +136,7 @@ export default function Page() {
             <div
               className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${isDragging ? "border-emerald-400 bg-emerald-900/20" : "border-gray-600 bg-gray-700/50 hover:bg-gray-700"
                 }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
+
             >
               <input
                 type="file"

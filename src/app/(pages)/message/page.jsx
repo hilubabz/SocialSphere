@@ -17,11 +17,10 @@ export default function ChatPage() {
     const { userData, setUserData } = useUserData()
     const [checkSentMessage, setCheckSentMessage] = useState(false)
     const [newMessage, setNewMessage] = useState(0)
-    const [onlineUsers,setOnlineUsers]=useState([])
-
+    const [onlineUsers, setOnlineUsers] = useState([])
     const bottomRef = useRef(null)
 
-    
+
     // console.log("Online Users: ",onlineUsers)
 
 
@@ -74,26 +73,41 @@ export default function ChatPage() {
     useEffect(() => {
         socket = io()
 
-        socket.on('connect', () =>{ console.log('Socket Connected', socket.id)
-            socket.emit("online", userData._id)
-        })
+        // socket.on('connect', () => {
+        //     console.log('Socket Connected', socket.id)
+        //     socket.emit("online", userData._id)
+        // })
         socket.on('message', (msg) => {
-            if (userData._id == msg.receiverId) {
+            if (userData._id == msg.receiverId || userData._id == msg.senderId) {
+                if (userData._id == msg.receiverId) {
+                    socket.emit('messageDelivered', msg)
+                }
                 console.log(msg.receiverId)
                 setNewMessage(prev => prev + 1)
             }
         })
-        socket.on('onlineUsers',(onlineUsers)=>{
+        socket.on('onlineUsers', (onlineUsers) => {
             setOnlineUsers(onlineUsers)
         })
 
-        socket.on('offlineUsers',(onlineUsers)=>{
+        socket.on('message_delivered', (msg) => {
+            setNewMessage(prev => prev + 1)
+        })
+
+        socket.on('messageDelivered',(msg)=>{
+            setNewMessage(prev=>prev+1)
+        })
+        socket.on('messageSeen',(messageId)=>{
+            setNewMessage(prev => prev + 1)
+        })
+
+        socket.on('offlineUsers', (onlineUsers) => {
             setOnlineUsers(onlineUsers)
         })
 
         return () => socket.disconnect()
     }, [userData])
-    console.log('Online Users: ',onlineUsers)
+    console.log('Online Users: ', onlineUsers)
     useEffect(() => {
         if (bottomRef.current) {
             bottomRef.current.scrollIntoView({ behavior: "smooth" });
@@ -101,7 +115,7 @@ export default function ChatPage() {
     }, [selectedUserMessage]);
 
 
-    const sendMessage = async (e,receiverId) => {
+    const sendMessage = async (e, receiverId) => {
         e.preventDefault()
         try {
             const res = await fetch('/apis/sendMessage', {
@@ -117,7 +131,7 @@ export default function ChatPage() {
             })
             const result = await res.json()
             if (result.success) {
-                socket.emit('message', { senderName: userData.name, receiverId: receiverId,msg:input })
+                socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: receiverId, msg: input })
                 setInput('')
                 setCheckSentMessage(!checkSentMessage)
             }
@@ -131,7 +145,17 @@ export default function ChatPage() {
     }
 
 
+    useEffect(()=>{
+        if(!selectedUser && !selectedUserMessage && !userData) return
 
+        else{
+            selectedUserMessage.map((message)=>{
+                if(message.status=='delivered'&&message.receiverId==userData._id){
+                    socket.emit('messageSeen',message._id)
+                }
+            })
+        }
+    },[selectedUser,selectedUserMessage])
 
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -155,9 +179,25 @@ export default function ChatPage() {
                 {/* Users List */}
                 <div className="flex-1 overflow-y-auto">
                     {friend &&
-                        friend.map((user) => (
-                            <Friend key={user._id} user={user} setSelectedUser={setSelectedUser} selectedUser={selectedUser} message={userMessage} onlineUsers={onlineUsers}/>
-                        ))}
+                        [...friend]
+                            .sort((a, b) => {
+                                const aMsgs = userMessage.filter(
+                                    (msg) =>
+                                        (msg.senderId === a._id && msg.receiverId === userData._id) ||
+                                        (msg.receiverId === a._id && msg.senderId === userData._id)
+                                );
+                                const bMsgs = userMessage.filter(
+                                    (msg) =>
+                                        (msg.senderId === b._id && msg.receiverId === userData._id) ||
+                                        (msg.receiverId === b._id && msg.senderId === userData._id)
+                                );
+                                const aLatest = aMsgs.length > 0 ? Math.max(...aMsgs.map((m) => new Date(m.createdAt).getTime())) : 0;
+                                const bLatest = bMsgs.length > 0 ? Math.max(...bMsgs.map((m) => new Date(m.createdAt).getTime())) : 0;
+                                return bLatest - aLatest;
+                            })
+                            .map((user) => (
+                                <Friend key={user._id} user={user} setSelectedUser={setSelectedUser} selectedUser={selectedUser} message={userMessage} onlineUsers={onlineUsers} />
+                            ))}
                 </div>
             </div>
 
@@ -199,18 +239,44 @@ export default function ChatPage() {
                                 >
                                     <img src={msg.senderId === userData._id ? userData.profilePicture : selectedUser.profilePicture} alt="profile" className="h-full w-full object-cover rounded-full" />
                                 </div>
-                                <div
-                                    className={`px-4 py-2 rounded-2xl ${msg.senderId === userData._id
-                                        ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-br-md"
-                                        : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
-                                        }`}
-                                >
-                                    <p className="text-sm">{msg.message}</p>
-                                    <p className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}>
-                                        {formatTime(msg.createdAt)}
-                                    </p>
+                                <div className="flex flex-col items-end w-full">
+                                    <div
+                                        className={`px-4 py-2 rounded-2xl ${msg.senderId === userData._id
+                                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-br-md"
+                                            : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
+                                            }`}
+                                    >
+                                        <p className="text-sm">{msg.message}</p>
+                                        <p className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}>
+                                            {formatTime(msg.createdAt)}
+                                        </p>
+                                    </div>
+                                    {/* Message status for sent messages */}
+                                    {msg.senderId === userData._id && (
+                                        <div className="flex items-center gap-1 mt-1 mr-2">
+                                            {msg.status === "seen" && (
+                                                <>
+                                                    <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                                                    <span className="text-xs text-green-400 font-medium">Seen</span>
+                                                </>
+                                            )}
+                                            {msg.status === "delivered" && msg.status !== "seen" && (
+                                                <>
+                                                    <span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+                                                    <span className="text-xs text-blue-400 font-medium">Delivered</span>
+                                                </>
+                                            )}
+                                            {(!msg.status || msg.status === "sent") && (
+                                                <>
+                                                    <span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
+                                                    <span className="text-xs text-gray-400 font-medium">Sent</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+
                         </div>
                     ))}
                     <div ref={bottomRef} />
@@ -219,7 +285,7 @@ export default function ChatPage() {
                 {/* Message Input */}
                 <div className="p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 sticky bottom-0">
                     <div className="flex items-center space-x-3">
-                        <form className="flex-1 relative" onSubmit={(e)=>sendMessage(e,selectedUser._id)}>
+                        <form className="flex-1 relative" onSubmit={(e) => sendMessage(e, selectedUser._id)}>
                             <input
                                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full focus:ring-emerald-400 focus:border-emerald-400 pr-12 text-white placeholder-gray-400"
                                 placeholder={`Message ${selectedUser.name}...`}
@@ -228,7 +294,7 @@ export default function ChatPage() {
 
                             />
                             <button
-                                onClick={(e) => sendMessage(e,selectedUser._id)}
+                                onClick={(e) => sendMessage(e, selectedUser._id)}
                                 disabled={!input.trim()}
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-2 rounded-full hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
