@@ -90,6 +90,7 @@ export default function Page() {
                     onChange={handleChange}
                     className="w-full pl-12 pr-4 py-3 bg-slate-700/80 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                     placeholder="Enter your username"
+                    autoComplete="off"
                     disabled={isLoading}
                   />
                 </div>
@@ -106,6 +107,7 @@ export default function Page() {
                     onChange={handleChange}
                     className="w-full pl-12 pr-4 py-3 bg-slate-700/80 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                     placeholder="Enter your password"
+                    autoComplete="off"
                     disabled={isLoading}
                   />
                 </div>

@@ -36,6 +36,7 @@ export default function Page() {
   }
 
   const handleFile = async (event) => {
+    setIsLoading(true)
     const file = event.target.files[0];
     const photoName = event.target.name;
 
@@ -59,6 +60,7 @@ export default function Page() {
         console.error("Image upload failed:", err);
       }
     }
+    setIsLoading(false)
   };
 
 
@@ -182,6 +184,7 @@ export default function Page() {
                           className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                           placeholder="Enter your name"
                           disabled={isLoading}
+                          autoComplete="off"
                           required
                         />
                       </div>
@@ -198,6 +201,7 @@ export default function Page() {
                           className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                           placeholder="Choose username"
                           disabled={isLoading}
+                          autoComplete="off"
                           required
                         />
                       </div>
@@ -215,6 +219,7 @@ export default function Page() {
                         className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                         placeholder="Enter your email"
                         disabled={isLoading}
+                        autoComplete="off"
                         required
                       />
                     </div>
@@ -231,6 +236,7 @@ export default function Page() {
                           onChange={handleChange}
                           className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                           disabled={isLoading}
+                          autoComplete="off"
                           required
                         />
                       </div>
@@ -246,6 +252,7 @@ export default function Page() {
                             value="Male"
                             onChange={handleChange}
                             disabled={isLoading}
+                            autoComplete="off"
                             className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
                           />
                           <span className="text-gray-200">Male</span>
@@ -257,6 +264,7 @@ export default function Page() {
                             value="Female"
                             onChange={handleChange}
                             disabled={isLoading}
+                            autoComplete="off"
                             className="w-4 h-4 text-emerald-500 focus:ring-emerald-500"
                           />
                           <span className="text-gray-200">Female</span>
@@ -276,6 +284,7 @@ export default function Page() {
                         className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                         placeholder="Create password"
                         disabled={isLoading}
+                        autoComplete="off"
                         required
                       />
                     </div>
@@ -292,6 +301,7 @@ export default function Page() {
                         className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-100 placeholder-gray-400"
                         placeholder="Confirm password"
                         disabled={isLoading}
+                        autoComplete="off"
                         required
                       />
                     </div>
@@ -357,6 +367,7 @@ export default function Page() {
                       onChange={handleFile}
                       ref={coverPictureRef}
                       disabled={isLoading}
+                      autoComplete="off"
                       className="hidden"
                     />
                     <div
@@ -385,6 +396,7 @@ export default function Page() {
                       onChange={handleFile}
                       ref={profilePictureRef}
                       disabled={isLoading}
+                      autoComplete="off"
                       className="hidden"
                     />
                     <div
