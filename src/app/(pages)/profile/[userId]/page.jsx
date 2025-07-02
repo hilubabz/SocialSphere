@@ -18,10 +18,40 @@ export default function ProfilePage() {
   const [sessionUserId, setSessionUserId] = useState()
   const [comment,setComment]=useState([])
   const [like,setLike]=useState(0)
+  const [followers,setFollowers]=useState([])
+  const [following,setFollowing]=useState([])
+  const [newFollow,setNewFollow]=useState(0)
 
   useEffect(() => {
     setSessionUserId(JSON.parse(sessionStorage.getItem("login")))
   }, [])
+
+  useEffect(()=>{
+    const fetchFollowerFollowing=async()=>{
+      try{
+        if(!userData) return
+        const res=await fetch(`/apis/fetchFollowerFollowing?userId=${userData._id}`,{
+          method:"GET",
+          headers:{
+            'Content-Type':'application/json'
+          }
+        })
+        const response=await res.json()
+        if(response.success){
+          const data=response.data
+          setFollowers(data.followers)
+          setFollowing(data.following)
+        }
+        else{
+          console.log("Error fetching followers and following")
+        }
+      }
+      catch(e){
+        console.log(e)
+      }
+    }
+    fetchFollowerFollowing()
+  },[userData,newFollow])
 
   useEffect(() => {
     const retrieveUser = async () => {
@@ -62,10 +92,10 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!userData || !profileUser) return;
-    if (Array.isArray(userData.followers) && userData.followers.includes(profileUser._id)) {
+    if (Array.isArray(followers) && followers.includes(profileUser._id)) {
       setIsFollower(true);
     }
-    if (Array.isArray(userData.following) && userData.following.includes(profileUser._id)) {
+    if (Array.isArray(following) && following.includes(profileUser._id)) {
       setIsFollowing(true);
     }
   }, [profileUser, userData]);
@@ -207,7 +237,7 @@ export default function ProfilePage() {
           {activeTab === "posts" && post != null ? (
             post.length > 0 ? (
               post.map((val, index) => (
-                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} comment={comment} setComment={setComment}/>
+                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} comment={comment} setComment={setComment} followers={followers} following={following} setNewFollow={setNewFollow} newFollow={newFollow}/>
               ))
             ) : (
               <div className="text-center py-16">

@@ -8,7 +8,7 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useUserData } from "@/context/userContext"
 
-export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow }) {
+export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow,followers,following }) {
   const { userData, setUserData } = useUserData()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
@@ -33,10 +33,10 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
     if (!userData) return;
     setIsFollower(false);
     setIsFollowing(false);
-    if (Array.isArray(userData.followers) && userData.followers.includes(postData.userId?._id)) {
+    if (Array.isArray(followers) && followers.includes(postData.userId?._id)) {
       setIsFollower(true);
     }
-    if (Array.isArray(userData.following) && userData.following.includes(postData.userId?._id)) {
+    if (Array.isArray(following) && following.includes(postData.userId?._id)) {
       setIsFollowing(true);
     }
   }, [userData, postData.userId?._id]);

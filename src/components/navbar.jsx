@@ -87,12 +87,12 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
-          <div className="flex items-center space-x-2">
+          <Link href={'/posts'} className="flex items-center space-x-2">
             <div className="w-10 h-10 rounded-full flex items-center justify-center">
               <img src="/Logo.png" className="w-full h-full object-cover" />
             </div>
             <span className="text-white font-bold text-xl">SocialSphere</span>
-          </div>
+          </Link>
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-8">
