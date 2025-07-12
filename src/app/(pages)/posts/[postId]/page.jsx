@@ -14,7 +14,8 @@ export default function Page() {
     const [selfProfile, setSelfProfile] = useState(false)
     const [comment, setComment] = useState([])
     const [like, setLike] = useState(0)
-    const singlePost=true
+    const singlePost = true
+    const [friend, setFriend] = useState()
 
     const fetchPostData = async () => {
         try {
@@ -70,23 +71,40 @@ export default function Page() {
 
     useEffect(() => {
         if (!userData && !postData) return
-        if (userData._id == postData._id){
+        if (userData._id == postData._id) {
             setSelfProfile(true)
         }
-        else{
+        else {
             setSelfProfile(false)
         }
     }, [userData, postData])
     // console.log(postData)
     // console.log(followers)
     // console.log(following)
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                const friendData = await fetch(`/apis/fetchFriends?userId=${userData?._id}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json.",
+                    },
+                })
+                const res = await friendData.json()
+                setFriend(res.data)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+        fetchFriends()
+    }, [userData._id])
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto p-4 pt-6 ">
                 <div className="col-span-3"></div>
                 <div className="col-span-6">
-                    {postData &&followers&&following&& (<Post postData={postData} userId={userData._id} setPost={setPostData} selfProfile={selfProfile} comment={comment} setComment={setComment} like={like} setLike={setLike} setNewFollow={setNewFollow} followers={followers} following={following} singlePost={singlePost} />)}
+                    {postData && followers && following && (<Post postData={postData} userId={userData._id} setPost={setPostData} selfProfile={selfProfile} comment={comment} setComment={setComment} like={like} setLike={setLike} setNewFollow={setNewFollow} followers={followers} following={following} singlePost={singlePost} friend={friend}/>)}
 
                     {!postData && <div>Loading...</div>}
                 </div>

@@ -126,7 +126,7 @@ export default function ChatPage() {
                 body: JSON.stringify({
                     senderId: userData._id,
                     receiverId: receiverId,
-                    message: input
+                    message: input,
                 })
             })
             const result = await res.json()
@@ -230,8 +230,8 @@ export default function ChatPage() {
 
                 {/* Messages Area */}
                 <main className="flex-1 overflow-y-auto p-6 space-y-4">
-                    {selectedUserMessage.map((msg) => (
-                        <div key={msg.id} className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}>
+                    {selectedUserMessage.map((msg,index) => (
+                        <div key={index} className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}>
                             <div className={`flex items-end space-x-2 max-w-md ${msg.senderId === userData._id ? "flex-row-reverse space-x-reverse" : ""}`}>
                                 <div
                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}
@@ -246,7 +246,8 @@ export default function ChatPage() {
                                             : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
                                             }`}
                                     >
-                                        <p className="text-sm">{msg.message}</p>
+                                        {msg.messageType!='link'&&<p className="text-sm">{msg.message}</p>}
+                                        {msg.messageType=='link'&&<p className="text-sm text-blue-700">{msg.message}</p>}
                                         <p className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}>
                                             {formatTime(msg.createdAt)}
                                         </p>

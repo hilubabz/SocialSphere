@@ -12,12 +12,13 @@ export default function Page() {
   const [followingPost, setFollowingPost] = useState()
   const [postToggle, setPostToggle] = useState(false)
   const [post, setPost] = useState([])
-  const [comment,setComment]=useState([])
-  const [like,setLike]=useState(0)
-  const [followers,setFollowers]=useState([])
-  const [following,setFollowing]=useState([])
-  const [newFollow,setNewFollow]=useState(0)
-  const singlePost=false
+  const [comment, setComment] = useState([])
+  const [like, setLike] = useState(0)
+  const [followers, setFollowers] = useState([])
+  const [following, setFollowing] = useState([])
+  const [newFollow, setNewFollow] = useState(0)
+  const [friend, setFriend] = useState([])
+  const singlePost = false
 
   useEffect(() => {
     if (!userData?._id) return
@@ -48,43 +49,62 @@ export default function Page() {
       }
     }
     getFollowingPost()
-  }, [userData,comment,like])
+  }, [userData, comment, like])
   // console.log(followingPost)
 
   // console.log(post)
 
-  useEffect(()=>{
-    const fetchFollowerFollowing=async()=>{
-      try{
-        if(!userData) return
-        const res=await fetch(`/apis/fetchFollowerFollowing?userId=${userData._id}`,{
-          method:"GET",
-          headers:{
-            'Content-Type':'application/json'
+  useEffect(() => {
+    const fetchFollowerFollowing = async () => {
+      try {
+        if (!userData) return
+        const res = await fetch(`/apis/fetchFollowerFollowing?userId=${userData._id}`, {
+          method: "GET",
+          headers: {
+            'Content-Type': 'application/json'
           }
         })
-        const response=await res.json()
-        if(response.success){
-          const data=response.data
+        const response = await res.json()
+        if (response.success) {
+          const data = response.data
           setFollowers(data.followers)
           setFollowing(data.following)
         }
-        else{
+        else {
           console.log("Error fetching followers and following")
         }
       }
-      catch(e){
+      catch (e) {
         console.log(e)
       }
     }
     fetchFollowerFollowing()
-  },[userData,newFollow])
+  }, [userData, newFollow])
   // console.log(followers,following)
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const friendData = await fetch(`/apis/fetchFriends?userId=${userData?._id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json.",
+          },
+        })
+        const res = await friendData.json()
+        setFriend(res.data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fetchFriends()
+  }, [userData._id])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-     
+
       <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto p-4 pt-6">
-    
+
         <div className="col-span-3 space-y-4 sticky top-20 self-start">
           <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/40 shadow-xl">
             <div className="flex items-center space-x-2 mb-4">
@@ -109,7 +129,7 @@ export default function Page() {
           </div>
         </div>
 
-       
+
         <div className="col-span-6 space-y-6">
           <CreatePost />
           {!postToggle &&
@@ -128,6 +148,7 @@ export default function Page() {
                 setLike={setLike}
                 setNewFollow={setNewFollow}
                 singlePost={singlePost}
+                friend={friend}
               />
             ))}
           {postToggle &&
@@ -146,11 +167,12 @@ export default function Page() {
                 setLike={setLike}
                 setNewFollow={setNewFollow}
                 singlePost={singlePost}
+                friend={friend}
               />
             ))}
         </div>
 
-        
+
         {/* <div className="col-span-3 space-y-4 sticky top-20 self-start">
           <FollowCard />
         </div> */}

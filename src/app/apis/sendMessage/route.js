@@ -7,7 +7,8 @@ export async function POST(request){
     try{
         await dbConnect();
         const data=await request.json()
-        const addMessage=await Message.create({senderId:data.senderId, receiverId:data.receiverId, message:data.message})
+        console.log(data)
+        const addMessage=await Message.create({senderId:data.senderId, receiverId:data.receiverId, message:data.message, messageType: data.messageType})
         if(addMessage){
             return NextResponse.json({success:true,message:'Message Sent',_id:addMessage._id},{status:200})
         }

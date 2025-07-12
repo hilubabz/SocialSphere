@@ -8,9 +8,11 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useUserData } from "@/context/userContext"
 import { toast } from "react-toastify"
+import { io } from "socket.io-client"
+import { useRouter } from "next/navigation"
 
-
-export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow, followers, following, singlePost }) {
+let socket
+export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow, followers, following, singlePost, friend }) {
   const { userData, setUserData } = useUserData()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
@@ -20,6 +22,9 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
   const latestCommentRef = useRef(null)
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false)
   const [showMoreOptions, setShowMoreOptions] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [selectedFriendId, setSelectedFriendId] = useState(null)
+  const router=useRouter()
 
   useEffect(() => {
     if (showComments) {
@@ -61,47 +66,47 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
   }
 
   const toggleLike = async () => {
-  const isLiked = postData.likes.includes(userId);
+    const isLiked = postData.likes.includes(userId);
 
-  const url = isLiked ? "/apis/removeLike" : "/apis/likePost";
+    const url = isLiked ? "/apis/removeLike" : "/apis/likePost";
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ postId: postData._id, userId }),
-  });
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ postId: postData._id, userId }),
+    });
 
-  const result = await res.json();
+    const result = await res.json();
 
-  if (result.success) {
-    if (singlePost) {
-      setPost((prev) => ({
-        ...prev,
-        likes: isLiked
-          ? prev.likes.filter((id) => id !== userId)
-          : [...prev.likes, userId],
-      }));
-    } else {
-      setPost((prevPosts) =>
-        prevPosts.map((post) =>
-          post._id === postData._id
-            ? {
+    if (result.success) {
+      if (singlePost) {
+        setPost((prev) => ({
+          ...prev,
+          likes: isLiked
+            ? prev.likes.filter((id) => id !== userId)
+            : [...prev.likes, userId],
+        }));
+      } else {
+        setPost((prevPosts) =>
+          prevPosts.map((post) =>
+            post._id === postData._id
+              ? {
                 ...post,
                 likes: isLiked
                   ? post.likes.filter((id) => id !== userId)
                   : [...post.likes, userId],
               }
-            : post,
-        ),
-      );
-    }
+              : post,
+          ),
+        );
+      }
 
-    // Optional: update `like` if you're maintaining it separately
-    setLike((prev) => (isLiked ? prev - 1 : prev + 1));
-  }
-};
+      // Optional: update `like` if you're maintaining it separately
+      setLike((prev) => (isLiked ? prev - 1 : prev + 1));
+    }
+  };
 
 
   const toggleComments = () => {
@@ -131,6 +136,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
       latestCommentRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
     }
   }, [comment])
+  
 
   const followUser = async () => {
     try {
@@ -224,6 +230,41 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
       toast.error('Error while deleting comment')
       console.log(e)
     }
+  }
+
+  useEffect(()=>{
+    socket=io()
+  },[])
+
+  const handleShare = async () => {
+      try {
+            const res = await fetch('/apis/sendMessage', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    senderId: userData._id,
+                    receiverId: selectedFriendId,
+                    message: `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${postData._id}`,
+                    messageType: 'link'
+                })
+            })
+            const result = await res.json()
+            if (result.success) {
+              toast.success('Link sent successfully')
+                socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: selectedFriendId, msg: 'Shared a link' })
+                router.push(`/message/${selectedFriendId}`)
+                // setInput('')
+                // setCheckSentMessage(!checkSentMessage)
+            }
+            else {
+                console.log("Failed to send message")
+            }
+        }
+        catch (e) {
+            console.log(e)
+        }
   }
 
   return (
@@ -363,12 +404,68 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
                 </div>
                 <span className="text-sm font-medium">{postData.comments.length} Comments</span>
               </button>
-              {/* <button className="flex items-center space-x-2 text-white/70 hover:text-emerald-400 transition-colors group">
+              <button
+                onClick={() => setOpen(true)}
+                className="flex items-center space-x-2 text-white/70 hover:text-emerald-400 transition-colors group"
+              >
                 <div className="p-2 rounded-full group-hover:bg-emerald-500/10 transition-colors">
                   <Share className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium">Share</span>
-              </button> */}
+              </button>
+
+              {/* Share Modal Overlay */}
+              {open && typeof window !== "undefined" &&
+                createPortal(
+                  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl w-full max-w-md shadow-2xl p-6 relative">
+                      {/* Close Button */}
+                      <button
+                        className="absolute top-4 right-4 text-gray-500 hover:text-black transition-colors"
+                        onClick={() => setOpen(false)}
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+
+                      <h3 className="text-lg font-semibold text-white mb-4">Select a Friend to Share</h3>
+
+                      <div className="max-h-60 overflow-y-auto space-y-2">
+                        {friend.map(f => (
+                          <label
+                            key={f._id}
+                            className="flex items-center space-x-3 p-2 rounded cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="friend"
+                              checked={selectedFriendId === f._id}
+                              onChange={() => setSelectedFriendId(f._id)}
+                              className="form-radio text-emerald-500"
+                            />
+                            <img
+                              src={f.profilePicture}
+                              alt={f.name}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                            <div className="text-sm">
+                              <div className="font-medium text-white">{f.name}</div>
+                              <div className="text-gray-500">@{f.username}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={handleShare}
+                        disabled={!selectedFriendId}
+                        className="w-full mt-4 bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Share
+                      </button>
+                    </div>
+                  </div>,
+                  document.body
+                )}
             </div>
             {/* <button className="text-white/70 hover:text-emerald-400 transition-colors p-2 rounded-full hover:bg-emerald-500/10">
               <Bookmark className="w-5 h-5" />
@@ -420,7 +517,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
                             {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
                           </span>
                         </div>
-                        {userData && comments.userId._id == userData._id && (<div className="text-red-700 flex gap-x-2 cursor-pointer" onClick={()=>setShowRemoveConfirm(true)}>
+                        {userData && comments.userId._id == userData._id && (<div className="text-red-700 flex gap-x-2 cursor-pointer" onClick={() => setShowRemoveConfirm(true)}>
                           <Trash />
                           Delete
                         </div>)}

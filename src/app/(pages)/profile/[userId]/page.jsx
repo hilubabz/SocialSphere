@@ -2,12 +2,15 @@
 
 import Post from "@/components/postComponent"
 import { useUserData } from "@/context/userContext"
-import { Camera, Edit, Settings, Grid, Bookmark, UserPlus } from "lucide-react"
+import { Camera, Edit, Settings, Grid, Bookmark, UserPlus,X } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
+import { io } from "socket.io-client"
+import { createPortal } from "react-dom"
+import { toast } from "react-toastify"
 
-
+let socket
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts")
   const { userData, setUserData } = useUserData()
@@ -18,44 +21,47 @@ export default function ProfilePage() {
   const [selfProfile, setSelfProfile] = useState()
   const [post, setPost] = useState()
   const [sessionUserId, setSessionUserId] = useState()
-  const [comment,setComment]=useState([])
-  const [like,setLike]=useState(0)
-  const [followers,setFollowers]=useState([])
-  const [following,setFollowing]=useState([])
-  const [newFollow,setNewFollow]=useState(0)
+  const [comment, setComment] = useState([])
+  const [like, setLike] = useState(0)
+  const [followers, setFollowers] = useState([])
+  const [following, setFollowing] = useState([])
+  const [newFollow, setNewFollow] = useState(0)
+  const [friend, setFriend] = useState()
+  const [open, setOpen] = useState(false)
+  const [selectedFriendId, setSelectedFriendId] = useState(null)
 
-  const router=useRouter()
+  const router = useRouter()
 
   useEffect(() => {
     setSessionUserId(JSON.parse(sessionStorage.getItem("login")))
   }, [])
 
-  useEffect(()=>{
-    const fetchFollowerFollowing=async()=>{
-      try{
-        if(!userData) return
-        const res=await fetch(`/apis/fetchFollowerFollowing?userId=${userData._id}`,{
-          method:"GET",
-          headers:{
-            'Content-Type':'application/json'
+  useEffect(() => {
+    const fetchFollowerFollowing = async () => {
+      try {
+        if (!userData) return
+        const res = await fetch(`/apis/fetchFollowerFollowing?userId=${userData._id}`, {
+          method: "GET",
+          headers: {
+            'Content-Type': 'application/json'
           }
         })
-        const response=await res.json()
-        if(response.success){
-          const data=response.data
+        const response = await res.json()
+        if (response.success) {
+          const data = response.data
           setFollowers(data.followers)
           setFollowing(data.following)
         }
-        else{
+        else {
           console.log("Error fetching followers and following")
         }
       }
-      catch(e){
+      catch (e) {
         console.log(e)
       }
     }
     fetchFollowerFollowing()
-  },[userData,newFollow])
+  }, [userData, newFollow])
 
   useEffect(() => {
     const retrieveUser = async () => {
@@ -103,6 +109,58 @@ export default function ProfilePage() {
       setIsFollowing(true);
     }
   }, [profileUser, userData]);
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const friendData = await fetch(`/apis/fetchFriends?userId=${userData?._id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json.",
+          },
+        })
+        const res = await friendData.json()
+        setFriend(res.data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fetchFriends()
+  }, [userData._id])
+
+  useEffect(() => {
+    socket = io()
+  }, [])
+
+  const handleShare = async () => {
+    try {
+      const res = await fetch('/apis/sendMessage', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          senderId: userData._id,
+          receiverId: selectedFriendId,
+          message: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/${userId}`,
+          messageType: 'link'
+        })
+      })
+      const result = await res.json()
+      if (result.success) {
+        toast.success('Link sent successfully')
+        socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: selectedFriendId, msg: 'Shared a link' })
+        router.push(`/message/${selectedFriendId}`)
+        // setInput('')
+        // setCheckSentMessage(!checkSentMessage)
+      }
+      else {
+        console.log("Failed to send message")
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
+  }
 
   if (!profileUser) return <div className="text-white text-center mt-10">Loading...</div>
   else
@@ -119,7 +177,7 @@ export default function ProfilePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
               {selfProfile && (
-                <button className="absolute top-4 right-4 bg-gray-800/60 backdrop-blur-lg border border-gray-600/50 rounded-full p-3 text-white hover:bg-gray-700/70 transition-all duration-300" onClick={()=>router.push('/editProfile')}>
+                <button className="absolute top-4 right-4 bg-gray-800/60 backdrop-blur-lg border border-gray-600/50 rounded-full p-3 text-white hover:bg-gray-700/70 transition-all duration-300" onClick={() => router.push('/editProfile')}>
                   <Camera className="w-5 h-5" />
                 </button>
               )}
@@ -136,7 +194,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 {selfProfile && (
-                  <button className="absolute bottom-2 right-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full p-2 text-white hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg" onClick={()=>router.push('/editProfile')}>
+                  <button className="absolute bottom-2 right-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full p-2 text-white hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg" onClick={() => router.push('/editProfile')}>
                     <Camera className="w-4 h-4" />
                   </button>
                 )}
@@ -151,7 +209,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-4 mb-2">
                   <h1 className="text-3xl font-bold text-white">{profileUser.name}</h1>
                   {selfProfile && (
-                    <button className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-emerald-500/20 transition-all duration-300" onClick={()=>router.push('/editProfile')}>
+                    <button className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-emerald-500/20 transition-all duration-300" onClick={() => router.push('/editProfile')}>
                       <Edit className="w-5 h-5" />
                     </button>
                   )}
@@ -195,16 +253,67 @@ export default function ProfilePage() {
             </div>
 
             {/* Action Buttons */}
-            {selfProfile && (
-              <div className="flex gap-3">
-                <button className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105" onClick={()=>router.push('/editProfile')}>
+            <div className="flex gap-3">
+              {selfProfile && (
+                <button className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105" onClick={() => router.push('/editProfile')}>
                   Edit Profile
                 </button>
-                <button className="flex-1 bg-gray-700/60 backdrop-blur-sm border border-gray-600/50 hover:bg-gray-600/70 text-white font-medium py-3 px-6 rounded-full transition-all duration-300">
-                  Share Profile
-                </button>
-              </div>
-            )}
+              )}
+              <button className="flex-1 bg-gray-700/60 backdrop-blur-sm border border-gray-600/50 hover:bg-gray-600/70 text-white font-medium py-3 px-6 rounded-full transition-all duration-300" onClick={() => setOpen(true)}>
+                Share Profile
+              </button>
+              {open && typeof window !== "undefined" &&
+                createPortal(
+                  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl w-full max-w-md shadow-2xl p-6 relative">
+                      {/* Close Button */}
+                      <button
+                        className="absolute top-4 right-4 text-gray-500 hover:text-black transition-colors"
+                        onClick={() => setOpen(false)}
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+
+                      <h3 className="text-lg font-semibold text-white mb-4">Select a Friend to Share</h3>
+
+                      <div className="max-h-60 overflow-y-auto space-y-2">
+                        {friend.map(f => (
+                          <label
+                            key={f._id}
+                            className="flex items-center space-x-3 p-2 rounded cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="friend"
+                              checked={selectedFriendId === f._id}
+                              onChange={() => setSelectedFriendId(f._id)}
+                              className="form-radio text-emerald-500"
+                            />
+                            <img
+                              src={f.profilePicture}
+                              alt={f.name}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                            <div className="text-sm">
+                              <div className="font-medium text-white">{f.name}</div>
+                              <div className="text-gray-500">@{f.username}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={handleShare}
+                        disabled={!selectedFriendId}
+                        className="w-full mt-4 bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Share
+                      </button>
+                    </div>
+                  </div>,
+                  document.body
+                )}
+            </div>
           </div>
 
           {/* Tabs Section */}
@@ -212,11 +321,10 @@ export default function ProfilePage() {
             <div className="flex">
               <button
                 onClick={() => setActiveTab("posts")}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-l-2xl font-medium transition-all duration-300 ${
-                  activeTab === "posts"
-                    ? "bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 text-white border-b-2 border-emerald-400"
-                    : "text-gray-300 hover:text-white hover:bg-gray-700/50"
-                }`}
+                className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-l-2xl font-medium transition-all duration-300 ${activeTab === "posts"
+                  ? "bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 text-white border-b-2 border-emerald-400"
+                  : "text-gray-300 hover:text-white hover:bg-gray-700/50"
+                  }`}
               >
                 <Grid className="w-5 h-5" />
                 Posts
@@ -241,7 +349,7 @@ export default function ProfilePage() {
           {activeTab === "posts" && post != null ? (
             post.length > 0 ? (
               post.map((val, index) => (
-                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} comment={comment} setComment={setComment} followers={followers} following={following} setNewFollow={setNewFollow} newFollow={newFollow}/>
+                <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} comment={comment} setComment={setComment} followers={followers} following={following} setNewFollow={setNewFollow} newFollow={newFollow} friend={friend} />
               ))
             ) : (
               <div className="text-center py-16">

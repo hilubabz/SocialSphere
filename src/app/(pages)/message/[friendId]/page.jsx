@@ -7,6 +7,7 @@ import Friend from "@/components/friend"
 import { io } from "socket.io-client"
 import { useParams } from "next/navigation"
 
+
 let socket
 export default function ChatPage() {
     const [userMessage, setUserMessage] = useState([])
@@ -138,7 +139,8 @@ export default function ChatPage() {
                 body: JSON.stringify({
                     senderId: userData._id,
                     receiverId: receiverId,
-                    message: input
+                    message: input,
+                    messageType:'text'
                 })
             })
             const result = await res.json()
@@ -228,6 +230,8 @@ export default function ChatPage() {
                         </div>
                         <div>
                             <h2 className="font-semibold text-white">{selectedUser?.name}</h2>
+                            {onlineUsers.includes(selectedUser?._id)&&<div className="text-green-500 text-sm">Active Now</div>}
+                            {!onlineUsers.includes(selectedUser?._id)&&<div className="text-gray-500 text-sm">Offline</div>}
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -258,7 +262,8 @@ export default function ChatPage() {
                                             : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
                                             }`}
                                     >
-                                        <p className="text-sm">{msg.message}</p>
+                                        {msg.messageType!='link'&&<p className="text-sm">{msg.message}</p>}
+                                        {msg.messageType=='link'&&<a href={`${msg.message}`} className="text-sm text-blue-700 underline cursor-pointer">{msg.message}</a>}
                                         <p className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}>
                                             {formatTime(msg.createdAt)}
                                         </p>
