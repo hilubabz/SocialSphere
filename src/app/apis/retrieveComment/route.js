@@ -9,7 +9,7 @@ export async function GET(request){
         const { searchParams } = new URL(request.url);
         const postId = searchParams.get('postId');
 
-        const post=await Post.findById(postId).populate('comments.userId','name username profilePicture')
+        const post=await Post.findById(postId).populate('comments.userId','_id name username profilePicture')
 
         return NextResponse.json({success:true,message:'Comments Retrieved',data:post.comments},{status:200})
     }

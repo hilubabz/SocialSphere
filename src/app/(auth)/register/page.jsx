@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useState, useRef } from "react"
 import { User, Mail, Lock, Calendar, Upload, Camera, ArrowRight, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
-import {toast} from "react-toastify"
+import { toast } from "react-toastify"
 
 
 
@@ -60,15 +60,33 @@ export default function Page() {
         setRegInfo((prev) => ({ ...prev, [photoName]: data.url }));
         if (photoName === "profilePicture") setProfilePicture(data.url);
         else setCoverPicture(data.url);
-        toast.success("Upload successful!", { id: toastId });
+
+        toast.update(toastId, {
+          render: "Upload successful!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          closeOnClick: true,
+        });
       } else {
-        toast.error("Upload failed", { id: toastId });
+        toast.update(toastId, {
+          render: "Upload failed",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
       }
     } catch (err) {
       console.error("Image upload failed:", err);
-      toast.error("Upload error", { id: toastId });
+      toast.update(toastId, {
+        render: "Upload error",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
   };
+
 
 
   const handleRePass = (event) => {

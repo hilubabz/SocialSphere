@@ -1,14 +1,16 @@
 "use client"
 
-import { Heart, MessageCircle, Share, Bookmark, MoreHorizontal, UserPlus, Send, X } from "lucide-react"
+import { Heart, MessageCircle, Share, Bookmark, MoreHorizontal, UserPlus, Send, X, Trash } from "lucide-react"
 import ImageSlider from "./imageSlider"
 import { formatDistanceToNow } from "date-fns"
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useUserData } from "@/context/userContext"
+import { toast } from "react-toastify"
 
-export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow,followers,following }) {
+
+export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow, followers, following }) {
   const { userData, setUserData } = useUserData()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
@@ -16,6 +18,8 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
   const [isFollower, setIsFollower] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
   const latestCommentRef = useRef(null)
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false)
+  const [showMoreOptions, setShowMoreOptions] = useState(false)
 
   useEffect(() => {
     if (showComments) {
@@ -144,10 +148,10 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
       })
       const response = await res.json()
       // console.log(response.message)
-      if(response.success){
-        setNewFollow(prev=>prev+1)
+      if (response.success) {
+        setNewFollow(prev => prev + 1)
         setIsFollowing(true);
-        
+
       }
     }
     catch (e) {
@@ -166,13 +170,63 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
       })
       const response = await res.json()
       // console.log(response.message)
-      if(response.success){
-        setNewFollow(prev=>prev+1)
+      if (response.success) {
+        setNewFollow(prev => prev + 1)
         setIsFollowing(false);
-        
+
       }
     }
     catch (e) {
+      console.log(e)
+    }
+  }
+
+  const handleRemovePost = async () => {
+    try {
+      const res = await fetch('/apis/removePost', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ _id: postData._id })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setPost(prev => prev.filter(post => post._id !== postData._id));
+        toast.success("Post Removed Successfully")
+        setShowRemoveConfirm(false)
+        setShowMoreOptions(false)
+      }
+      else {
+        toast.error("Failed to Remove Post", data.message)
+      }
+    }
+    catch (e) {
+      // console.log(e)
+      toast.error("An error occured while removing the post")
+    }
+  }
+
+  const deleteComment = async (commentId) => {
+    try {
+      const res = await fetch('/apis/deleteComment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ postId: postData._id, commentId: commentId })
+      })
+      const result = await res.json()
+      if (result.success) {
+        setShowRemoveConfirm(false)
+        fetchComment()
+      }
+      else {
+        toast.error('Failed to Delete Comment')
+      }
+    }
+    catch (e) {
+      toast.error('Error while deleting comment')
       console.log(e)
     }
   }
@@ -234,9 +288,53 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
                 )}
               </div>
             )}
-            <button className="text-white/60 hover:text-white p-2 rounded-full hover:bg-gray-700/50 transition-colors">
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              {selfProfile && (<button
+                className="text-white/60 hover:text-white p-2 rounded-full hover:bg-gray-700/50 transition-colors"
+                onClick={() => setShowMoreOptions((prev) => !prev)}
+              >
+                <MoreHorizontal className="w-5 h-5" />
+              </button>)}
+              {showMoreOptions && (
+                <div className="absolute right-0 mt-2 w-44 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 animate-fade-in">
+                  <button
+                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-800 rounded-t-lg font-medium transition-colors flex items-center gap-2"
+                    onClick={() => { setShowRemoveConfirm(true); setShowMoreOptions(false); }}
+                  >
+                    <X className="w-4 h-4" /> Remove Post
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-b-lg transition-colors"
+                    onClick={() => setShowMoreOptions(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+              {/* Remove Post Confirmation Dialog */}
+              {showRemoveConfirm && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60">
+                  <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-8 w-full max-w-xs flex flex-col items-center animate-fade-in">
+                    <h3 className="text-lg font-semibold text-white mb-4">Remove Post?</h3>
+                    <p className="text-gray-300 mb-6 text-center">Are you sure you want to remove this post? This action cannot be undone.</p>
+                    <div className="flex gap-4 w-full">
+                      <button
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition-colors"
+                        onClick={handleRemovePost}
+                      >
+                        Yes, Remove
+                      </button>
+                      <button
+                        className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                        onClick={() => setShowRemoveConfirm(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -316,15 +414,43 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
                       />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="text-white font-medium hover:text-emerald-300 cursor-pointer transition-colors">
-                          {comments.userId?.name}
-                        </span>
-                        <span className="text-gray-400 text-sm">@{comments.userId?.username}</span>
-                        <span className="text-gray-500 text-sm">•</span>
-                        <span className="text-gray-400 text-sm">
-                          {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
-                        </span>
+                      <div className="flex justify-between mb-2">
+                        <div className="flex space-x-2">
+                          <span className="text-white font-medium hover:text-emerald-300 cursor-pointer transition-colors">
+                            {comments.userId?.name}
+                          </span>
+                          <span className="text-gray-400 text-sm">@{comments.userId?.username}</span>
+                          <span className="text-gray-500 text-sm">•</span>
+                          <span className="text-gray-400 text-sm">
+                            {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
+                          </span>
+                        </div>
+                        {userData && comments.userId._id == userData._id && (<div className="text-red-700 flex gap-x-2 cursor-pointer" onClick={()=>setShowRemoveConfirm(true)}>
+                          <Trash />
+                          Delete
+                        </div>)}
+                        {showRemoveConfirm && (
+                          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60">
+                            <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-8 w-full max-w-xs flex flex-col items-center animate-fade-in">
+                              <h3 className="text-lg font-semibold text-white mb-4">Remove Post?</h3>
+                              <p className="text-gray-300 mb-6 text-center">Are you sure you want to remove this Comment? This action cannot be undone.</p>
+                              <div className="flex gap-4 w-full">
+                                <button
+                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition-colors"
+                                  onClick={() => deleteComment(comments._id)}
+                                >
+                                  Yes, Remove
+                                </button>
+                                <button
+                                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                                  onClick={() => setShowRemoveConfirm(false)}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <p className="text-white/90 leading-relaxed">{comments.text}</p>
                     </div>

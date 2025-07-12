@@ -3,7 +3,7 @@ import { useState } from "react"
 import { ImagePlus, Send, Sparkles, Hash, AtSign } from "lucide-react"
 import { useUserData } from "@/context/userContext"
 import { useRouter } from "next/navigation"
-import {toast} from "react-toastify"
+import { toast } from "react-toastify"
 
 
 
@@ -16,7 +16,6 @@ export default function Page() {
 
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
-
     if (files.length === 0) return;
 
     const toastId = toast.loading("Uploading images...");
@@ -40,12 +39,24 @@ export default function Page() {
         }
       }
 
-      toast.success("All images uploaded!", { id: toastId });
+      toast.update(toastId, {
+        render: "All images uploaded!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+      });
     } catch (err) {
       console.error("Image upload error:", err);
-      toast.error("One or more uploads failed", { id: toastId });
+      toast.update(toastId, {
+        render: "One or more uploads failed",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
   };
+
 
 
 

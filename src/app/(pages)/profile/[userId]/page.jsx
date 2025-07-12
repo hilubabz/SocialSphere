@@ -4,7 +4,9 @@ import Post from "@/components/postComponent"
 import { useUserData } from "@/context/userContext"
 import { Camera, Edit, Settings, Grid, Bookmark, UserPlus } from "lucide-react"
 import { useParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
+
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts")
@@ -21,6 +23,8 @@ export default function ProfilePage() {
   const [followers,setFollowers]=useState([])
   const [following,setFollowing]=useState([])
   const [newFollow,setNewFollow]=useState(0)
+
+  const router=useRouter()
 
   useEffect(() => {
     setSessionUserId(JSON.parse(sessionStorage.getItem("login")))
@@ -115,7 +119,7 @@ export default function ProfilePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
               {selfProfile && (
-                <button className="absolute top-4 right-4 bg-gray-800/60 backdrop-blur-lg border border-gray-600/50 rounded-full p-3 text-white hover:bg-gray-700/70 transition-all duration-300">
+                <button className="absolute top-4 right-4 bg-gray-800/60 backdrop-blur-lg border border-gray-600/50 rounded-full p-3 text-white hover:bg-gray-700/70 transition-all duration-300" onClick={()=>router.push('/editProfile')}>
                   <Camera className="w-5 h-5" />
                 </button>
               )}
@@ -132,7 +136,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 {selfProfile && (
-                  <button className="absolute bottom-2 right-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full p-2 text-white hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg">
+                  <button className="absolute bottom-2 right-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full p-2 text-white hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg" onClick={()=>router.push('/editProfile')}>
                     <Camera className="w-4 h-4" />
                   </button>
                 )}
@@ -147,7 +151,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-4 mb-2">
                   <h1 className="text-3xl font-bold text-white">{profileUser.name}</h1>
                   {selfProfile && (
-                    <button className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-emerald-500/20 transition-all duration-300">
+                    <button className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-emerald-500/20 transition-all duration-300" onClick={()=>router.push('/editProfile')}>
                       <Edit className="w-5 h-5" />
                     </button>
                   )}
@@ -193,7 +197,7 @@ export default function ProfilePage() {
             {/* Action Buttons */}
             {selfProfile && (
               <div className="flex gap-3">
-                <button className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                <button className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105" onClick={()=>router.push('/editProfile')}>
                   Edit Profile
                 </button>
                 <button className="flex-1 bg-gray-700/60 backdrop-blur-sm border border-gray-600/50 hover:bg-gray-600/70 text-white font-medium py-3 px-6 rounded-full transition-all duration-300">
