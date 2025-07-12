@@ -10,7 +10,7 @@ import { useUserData } from "@/context/userContext"
 import { toast } from "react-toastify"
 
 
-export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow, followers, following }) {
+export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow, followers, following, singlePost }) {
   const { userData, setUserData } = useUserData()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState("")
@@ -61,53 +61,48 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
   }
 
   const toggleLike = async () => {
-    if (postData.likes.includes(userId)) {
-      const res = await fetch("/apis/removeLike", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ postId: postData._id, userId: userId }),
-      })
-      const result = await res.json()
-      // console.log(result.message)
-      if (result.success) {
-        setPost((prevPosts) =>
-          prevPosts.map((post) =>
-            post._id === postData._id
-              ? {
-                ...post,
-                likes: post.likes.filter((id) => id !== userId),
-              }
-              : post,
-          ),
-        )
-      }
+  const isLiked = postData.likes.includes(userId);
+
+  const url = isLiked ? "/apis/removeLike" : "/apis/likePost";
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ postId: postData._id, userId }),
+  });
+
+  const result = await res.json();
+
+  if (result.success) {
+    if (singlePost) {
+      setPost((prev) => ({
+        ...prev,
+        likes: isLiked
+          ? prev.likes.filter((id) => id !== userId)
+          : [...prev.likes, userId],
+      }));
     } else {
-      const res = await fetch("/apis/likePost", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ postId: postData._id, userId: userId }),
-      })
-      const result = await res.json()
-      // console.log(result.message)
-      if (result.success) {
-        setPost((prevPosts) =>
-          prevPosts.map((post) =>
-            post._id === postData._id
-              ? {
+      setPost((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postData._id
+            ? {
                 ...post,
-                likes: [...post.likes, userId],
+                likes: isLiked
+                  ? post.likes.filter((id) => id !== userId)
+                  : [...post.likes, userId],
               }
-              : post,
-          ),
-        )
-      }
+            : post,
+        ),
+      );
     }
-    setLike(prev => prev + 1)
+
+    // Optional: update `like` if you're maintaining it separately
+    setLike((prev) => (isLiked ? prev - 1 : prev + 1));
   }
+};
+
 
   const toggleComments = () => {
     fetchComment()
@@ -139,7 +134,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
 
   const followUser = async () => {
     try {
-      const res = await fetch('apis/followUser', {
+      const res = await fetch('/apis/followUser', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -161,7 +156,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
 
   const unfollowUser = async () => {
     try {
-      const res = await fetch('apis/unfollowUser', {
+      const res = await fetch('/apis/unfollowUser', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

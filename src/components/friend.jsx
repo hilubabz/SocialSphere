@@ -1,7 +1,9 @@
 "use client"
 
-export default function Friend({ user, setSelectedUser, selectedUser, message, onlineUsers }) {
+import { useRouter } from "next/navigation";
 
+export default function Friend({ user, setSelectedUser, selectedUser, message, onlineUsers }) {
+    const router=useRouter()
 
     const msg = message.filter(val => (val.senderId == user._id || val.receiverId == user._id))
     const latestMessage = msg[msg.length - 1]
@@ -16,10 +18,15 @@ export default function Friend({ user, setSelectedUser, selectedUser, message, o
         });
     };
 
+    const handleClick=(user,id)=>{
+        setSelectedUser(user)
+        router.push(`/message/${id}`)
+    }
+
     return (
         <div
             key={user._id}
-            onClick={() => setSelectedUser(user)}
+            onClick={() =>handleClick(user,user._id)}
             className={`p-4 border-b border-white/5 hover:bg-white/10 cursor-pointer transition-colors ${selectedUser?._id === user._id ? "bg-white/20 border-r-2 border-r-emerald-400" : "bg-transparent"
                 }`}
         >

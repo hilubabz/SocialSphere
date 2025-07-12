@@ -17,6 +17,7 @@ export default function Page() {
   const [followers,setFollowers]=useState([])
   const [following,setFollowing]=useState([])
   const [newFollow,setNewFollow]=useState(0)
+  const singlePost=false
 
   useEffect(() => {
     if (!userData?._id) return
@@ -111,9 +112,6 @@ export default function Page() {
        
         <div className="col-span-6 space-y-6">
           <CreatePost />
-
-        
-
           {!postToggle &&
             post &&
             post.map((val, index) => (
@@ -129,6 +127,7 @@ export default function Page() {
                 like={like}
                 setLike={setLike}
                 setNewFollow={setNewFollow}
+                singlePost={singlePost}
               />
             ))}
           {postToggle &&
@@ -146,6 +145,7 @@ export default function Page() {
                 like={like}
                 setLike={setLike}
                 setNewFollow={setNewFollow}
+                singlePost={singlePost}
               />
             ))}
         </div>
