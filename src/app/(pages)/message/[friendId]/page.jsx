@@ -131,6 +131,11 @@ export default function ChatPage() {
     const sendMessage = async (e, receiverId) => {
         e.preventDefault()
         try {
+            let msgType='text'
+            const regex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
+            if(input.match(regex)){
+                msgType='link'
+            }
             const res = await fetch('/apis/sendMessage', {
                 method: "POST",
                 headers: {
@@ -140,7 +145,7 @@ export default function ChatPage() {
                     senderId: userData._id,
                     receiverId: receiverId,
                     message: input,
-                    messageType:'text'
+                    messageType: msgType
                 })
             })
             const result = await res.json()
@@ -170,6 +175,20 @@ export default function ChatPage() {
             })
         }
     }, [selectedUser, selectedUserMessage])
+
+const handleLink = (message) => {
+  const regex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
+  const link = message.match(regex);
+
+  if (link && link.length > 0) {
+    let url = link[0];
+    if (!/^https?:\/\//i.test(url)) {
+      url = 'https://' + url; // Add https:// if missing
+    }
+    window.location.href = url;
+  }
+};
+
 
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -230,8 +249,8 @@ export default function ChatPage() {
                         </div>
                         <div>
                             <h2 className="font-semibold text-white">{selectedUser?.name}</h2>
-                            {onlineUsers.includes(selectedUser?._id)&&<div className="text-green-500 text-sm">Active Now</div>}
-                            {!onlineUsers.includes(selectedUser?._id)&&<div className="text-gray-500 text-sm">Offline</div>}
+                            {onlineUsers.includes(selectedUser?._id) && <div className="text-green-500 text-sm">Active Now</div>}
+                            {!onlineUsers.includes(selectedUser?._id) && <div className="text-gray-500 text-sm">Offline</div>}
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -262,8 +281,8 @@ export default function ChatPage() {
                                             : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
                                             }`}
                                     >
-                                        {msg.messageType!='link'&&<p className="text-sm">{msg.message}</p>}
-                                        {msg.messageType=='link'&&<a href={`${msg.message}`} className="text-sm text-blue-700 underline cursor-pointer">{msg.message}</a>}
+                                        {msg.messageType != 'link' && <p className="text-sm">{msg.message}</p>}
+                                        {msg.messageType == 'link' && <p onClick={() => handleLink(msg.message)} className="text-sm text-blue-700 underline cursor-pointer">{msg.message}</p>}
                                         <p className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}>
                                             {formatTime(msg.createdAt)}
                                         </p>
