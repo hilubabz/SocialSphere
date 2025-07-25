@@ -97,6 +97,7 @@ export default function Page() {
         console.log(e)
       }
     }
+    if(!userData?._id) return
     fetchFriends()
   }, [userData._id])
 

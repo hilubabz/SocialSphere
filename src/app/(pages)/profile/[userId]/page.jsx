@@ -1,16 +1,16 @@
 "use client"
 
 import Post from "@/components/postComponent"
+import { useSocketData } from "@/context/socketContext"
 import { useUserData } from "@/context/userContext"
 import { Camera, Edit, Settings, Grid, Bookmark, UserPlus,X } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { io } from "socket.io-client"
 import { createPortal } from "react-dom"
 import { toast } from "react-toastify"
 
-let socket
+
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts")
   const { userData, setUserData } = useUserData()
@@ -127,10 +127,13 @@ export default function ProfilePage() {
     fetchFriends()
   }, [userData._id])
 
-  useEffect(() => {
-    socket = io()
-  }, [])
-
+  // useEffect(() => {
+  //   socket = io()
+  // }, [])
+  const socketContext=useSocketData()
+  if(!socketContext) return <div>Loading...</div>
+  const {socket,socketConnected}=socketContext
+  
   const handleShare = async () => {
     try {
       const res = await fetch('/apis/sendMessage', {

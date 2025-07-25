@@ -6,9 +6,9 @@ import { useUserData } from "@/context/userContext"
 import Friend from "@/components/friend"
 import { io } from "socket.io-client"
 import { useParams } from "next/navigation"
+import { useSocketData } from "@/context/socketContext"
 
 
-let socket
 export default function ChatPage() {
     const [userMessage, setUserMessage] = useState([])
     const [selectedUserMessage, setSelectedUserMessage] = useState([])
@@ -75,6 +75,7 @@ export default function ChatPage() {
             const result = await res.json()
             setUserMessage(result.data)
         }
+        if(!userData?._id) return
         fetchMessages()
     }, [userData._id, checkSentMessage, newMessage])
     // console.log(userMessage)
@@ -83,43 +84,42 @@ export default function ChatPage() {
         setSelectedUserMessage(res)
     }, [selectedUser, userMessage])
 
+
+    const socketContext = useSocketData()
+    if (!socketContext) return <div>Loading....</div>
+    const { socket, socketConnected } = socketContext
     useEffect(() => {
-        socket = io()
-
-        // socket.on('connect', () => {
-        //     console.log('Socket Connected', socket.id)
-        //     socket.emit("online", userData._id)
-        // })
-        socket.on('message', (msg) => {
-            if (userData._id == msg.receiverId || userData._id == msg.senderId) {
-                if (userData._id == msg.receiverId) {
-                    socket.emit('messageDelivered', msg)
+        if(!userData?._id) return
+        if (socketConnected) {
+            socket.on('message', (msg) => {
+                if (userData._id == msg.receiverId || userData._id == msg.senderId) {
+                    if (userData._id == msg.receiverId) {
+                        socket.emit('messageDelivered', msg)
+                    }
+                    console.log(msg.receiverId)
+                    setNewMessage(prev => prev + 1)
                 }
-                console.log(msg.receiverId)
+            })
+            socket.on('onlineUsers', (onlineUsers) => {
+                setOnlineUsers(onlineUsers)
+            })
+
+            socket.on('message_delivered', (msg) => {
                 setNewMessage(prev => prev + 1)
-            }
-        })
-        socket.on('onlineUsers', (onlineUsers) => {
-            setOnlineUsers(onlineUsers)
-        })
+            })
 
-        socket.on('message_delivered', (msg) => {
-            setNewMessage(prev => prev + 1)
-        })
+            socket.on('messageDelivered', (msg) => {
+                setNewMessage(prev => prev + 1)
+            })
+            socket.on('messageSeen', (messageId) => {
+                setNewMessage(prev => prev + 1)
+            })
 
-        socket.on('messageDelivered', (msg) => {
-            setNewMessage(prev => prev + 1)
-        })
-        socket.on('messageSeen', (messageId) => {
-            setNewMessage(prev => prev + 1)
-        })
-
-        socket.on('offlineUsers', (onlineUsers) => {
-            setOnlineUsers(onlineUsers)
-        })
-
-        return () => socket.disconnect()
-    }, [userData])
+            socket.on('offlineUsers', (onlineUsers) => {
+                setOnlineUsers(onlineUsers)
+            })
+        }
+    }, [userData._id])
     console.log('Online Users: ', onlineUsers)
     useEffect(() => {
         if (bottomRef.current) {
@@ -131,10 +131,10 @@ export default function ChatPage() {
     const sendMessage = async (e, receiverId) => {
         e.preventDefault()
         try {
-            let msgType='text'
+            let msgType = 'text'
             const regex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
-            if(input.match(regex)){
-                msgType='link'
+            if (input.match(regex)) {
+                msgType = 'link'
             }
             const res = await fetch('/apis/sendMessage', {
                 method: "POST",
@@ -176,18 +176,18 @@ export default function ChatPage() {
         }
     }, [selectedUser, selectedUserMessage])
 
-const handleLink = (message) => {
-  const regex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
-  const link = message.match(regex);
+    const handleLink = (message) => {
+        const regex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
+        const link = message.match(regex);
 
-  if (link && link.length > 0) {
-    let url = link[0];
-    if (!/^https?:\/\//i.test(url)) {
-      url = 'https://' + url; // Add https:// if missing
-    }
-    window.location.href = url;
-  }
-};
+        if (link && link.length > 0) {
+            let url = link[0];
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url; // Add https:// if missing
+            }
+            window.location.href = url;
+        }
+    };
 
 
     return (
@@ -266,7 +266,7 @@ const handleLink = (message) => {
                 {/* Messages Area */}
                 <main className="flex-1 overflow-y-auto p-6 space-y-4">
                     {selectedUserMessage.map((msg) => (
-                        <div key={msg.id} className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}>
+                        <div key={msg._id} className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}>
                             <div className={`flex items-end space-x-2 max-w-md ${msg.senderId === userData._id ? "flex-row-reverse space-x-reverse" : ""}`}>
                                 <div
                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}

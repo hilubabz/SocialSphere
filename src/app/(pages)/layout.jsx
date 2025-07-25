@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Navbar from "@/components/navbar";
 import {UserDataProvider} from "@/context/userContext"
+import { SocketDataProvider } from "@/context/socketContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,8 +24,10 @@ export default function RootLayout({ children }) {
     
     
         <UserDataProvider>
+          <SocketDataProvider>
           <Navbar/>
           {children}
+          </SocketDataProvider>
         </UserDataProvider>
       
 

@@ -5,11 +5,9 @@ import { usePathname } from "next/navigation";
 import { useUserData } from "@/context/userContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { io } from "socket.io-client";
 import { toast } from "react-toastify";
+import { useSocketData } from "@/context/socketContext";
 
-
-let socket
 
 export default function Navbar() {
   const { userData, setUserData } = useUserData(false);
@@ -19,28 +17,26 @@ export default function Navbar() {
   const pathname = usePathname();
   // const {socket,setSocket}=useSocket()
 
-
+  const socketContext = useSocketData()
+  if (!socketContext) return <div>Loading....</div>
+  const { socket, socketConnected } = socketContext
   useEffect(() => {
-    socket = io()
-    socket.on('connect', () => {
-      console.log('Socket Connected', socket.id)
-      socket.emit("online", userData._id)
-    })
-
-    socket.on('message', (message) => {
-      // console.log('"'+message.receiverId+'"')
-      // console.log(sessionStorage.getItem('login'))
-      // console.log('"'+message.receiverId+'"'==sessionStorage.getItem('login'))
-      // console.log()
-      if ('"' + message.receiverId + '"' === sessionStorage.getItem('login')) {
-        if (!pathname.startsWith("/message")) {
-          toast(`New Message: ${message.senderName}: ${message.msg}`, {     
-            autoClose: 3000,                        
-          });
-          socket.emit('messageDelivered', message)
+    if (socketConnected) {
+      socket.on('message', (message) => {
+        // console.log('"'+message.receiverId+'"')
+        // console.log(sessionStorage.getItem('login'))
+        // console.log('"'+message.receiverId+'"'==sessionStorage.getItem('login'))
+        // console.log()
+        if ('"' + message.receiverId + '"' === sessionStorage.getItem('login')) {
+          if (!pathname.startsWith("/message")) {
+            toast(`New Message: ${message.senderName}: ${message.msg}`, {
+              autoClose: 3000,
+            });
+            socket.emit('messageDelivered', message)
+          }
         }
-      }
-    })
+      })
+    }
 
   }, [pathname])
 
@@ -55,7 +51,7 @@ export default function Navbar() {
       //   console.log(data)
       if (data.success) {
         setUserData(data.data);
-        socket.emit('online', data.data._id)
+        socket&&socket.emit('online', data.data._id)
       } else {
         console.error("Failed to fetch user data:", data.message);
       }
@@ -74,8 +70,8 @@ export default function Navbar() {
 
   const logOutUser = () => {
     // console.log(userData._id)
-    socket.emit('offline', userData._id)
-    socket.disconnect()
+    socket&&socket.emit('offline', userData._id)
+    socket&&socket.disconnect()
     sessionStorage.removeItem('login')
     setUserData('')
     route.push('/login')

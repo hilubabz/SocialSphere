@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Send, Search, MoreVertical, Info, MessageCircleMore } from "lucide-react"
 import { useUserData } from "@/context/userContext"
 import Friend from "@/components/friend"
-import { io } from "socket.io-client"
+import { useSocketData } from "@/context/socketContext"
 
 let socket
 export default function ChatPage() {
@@ -70,42 +70,31 @@ export default function ChatPage() {
         setSelectedUserMessage(res)
     }, [selectedUser, userMessage])
 
+    const socketContext = useSocketData()
+    if (!socketContext) return
+    const { socket, socketConnected } = socketContext
     useEffect(() => {
-        socket = io()
+        if (socketConnected) {
+            socket.on('onlineUsers', (onlineUsers) => {
+                setOnlineUsers(onlineUsers)
+            })
 
-        // socket.on('connect', () => {
-        //     console.log('Socket Connected', socket.id)
-        //     socket.emit("online", userData._id)
-        // })
-        socket.on('message', (msg) => {
-            if (userData._id == msg.receiverId || userData._id == msg.senderId) {
-                if (userData._id == msg.receiverId) {
-                    socket.emit('messageDelivered', msg)
-                }
-                console.log(msg.receiverId)
+            socket.on('message_delivered', (msg) => {
                 setNewMessage(prev => prev + 1)
-            }
-        })
-        socket.on('onlineUsers', (onlineUsers) => {
-            setOnlineUsers(onlineUsers)
-        })
+            })
 
-        socket.on('message_delivered', (msg) => {
-            setNewMessage(prev => prev + 1)
-        })
+            socket.on('messageDelivered', (msg) => {
+                setNewMessage(prev => prev + 1)
+            })
+            socket.on('messageSeen', (messageId) => {
+                setNewMessage(prev => prev + 1)
+            })
 
-        socket.on('messageDelivered',(msg)=>{
-            setNewMessage(prev=>prev+1)
-        })
-        socket.on('messageSeen',(messageId)=>{
-            setNewMessage(prev => prev + 1)
-        })
+            socket.on('offlineUsers', (onlineUsers) => {
+                setOnlineUsers(onlineUsers)
+            })
+        }
 
-        socket.on('offlineUsers', (onlineUsers) => {
-            setOnlineUsers(onlineUsers)
-        })
-
-        return () => socket.disconnect()
     }, [userData])
     console.log('Online Users: ', onlineUsers)
     useEffect(() => {
@@ -113,49 +102,6 @@ export default function ChatPage() {
             bottomRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [selectedUserMessage]);
-
-
-    const sendMessage = async (e, receiverId) => {
-        e.preventDefault()
-        try {
-            const res = await fetch('/apis/sendMessage', {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    senderId: userData._id,
-                    receiverId: receiverId,
-                    message: input,
-                })
-            })
-            const result = await res.json()
-            if (result.success) {
-                socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: receiverId, msg: input })
-                setInput('')
-                setCheckSentMessage(!checkSentMessage)
-            }
-            else {
-                console.log("Failed to send message")
-            }
-        }
-        catch (e) {
-            console.log(e)
-        }
-    }
-
-
-    useEffect(()=>{
-        if(!selectedUser && !selectedUserMessage && !userData) return
-
-        else{
-            selectedUserMessage.map((message)=>{
-                if(message.status=='delivered'&&message.receiverId==userData._id){
-                    socket.emit('messageSeen',message._id)
-                }
-            })
-        }
-    },[selectedUser,selectedUserMessage])
 
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -202,117 +148,13 @@ export default function ChatPage() {
             </div>
 
             {/* Main Chat Area */}
-            {selectedUser && (<div className="flex-1 flex flex-col">
-                {/* Chat Header */}
-                <header className="p-4 bg-black/20 backdrop-blur-sm border-b border-white/10 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="relative">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold`}>
-                                <img
-                                    src={selectedUser?.profilePicture || "/placeholder.svg"}
-                                    className="h-full w-full object-cover rounded-full"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <h2 className="font-semibold text-white">{selectedUser?.name}</h2>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                            <Info className="w-5 h-5 text-gray-300" />
-                        </button>
-                        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                            <MoreVertical className="w-5 h-5 text-gray-300" />
-                        </button>
-                    </div>
-                </header>
 
-                {/* Messages Area */}
-                <main className="flex-1 overflow-y-auto p-6 space-y-4">
-                    {selectedUserMessage.map((msg,index) => (
-                        <div key={index} className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}>
-                            <div className={`flex items-end space-x-2 max-w-md ${msg.senderId === userData._id ? "flex-row-reverse space-x-reverse" : ""}`}>
-                                <div
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}
-                                    style={msg.senderId === userData._id ? {} : { backgroundColor: selectedUser.color }}
-                                >
-                                    <img src={msg.senderId === userData._id ? userData.profilePicture : selectedUser.profilePicture} alt="profile" className="h-full w-full object-cover rounded-full" />
-                                </div>
-                                <div className="flex flex-col items-end w-full">
-                                    <div
-                                        className={`px-4 py-2 rounded-2xl ${msg.senderId === userData._id
-                                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-br-md"
-                                            : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
-                                            }`}
-                                    >
-                                        {msg.messageType!='link'&&<p className="text-sm">{msg.message}</p>}
-                                        {msg.messageType=='link'&&<p className="text-sm text-blue-700">{msg.message}</p>}
-                                        <p className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}>
-                                            {formatTime(msg.createdAt)}
-                                        </p>
-                                    </div>
-                                    {/* Message status for sent messages */}
-                                    {msg.senderId === userData._id && (
-                                        <div className="flex items-center gap-1 mt-1 mr-2">
-                                            {msg.status === "seen" && (
-                                                <>
-                                                    <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
-                                                    <span className="text-xs text-green-400 font-medium">Seen</span>
-                                                </>
-                                            )}
-                                            {msg.status === "delivered" && msg.status !== "seen" && (
-                                                <>
-                                                    <span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
-                                                    <span className="text-xs text-blue-400 font-medium">Delivered</span>
-                                                </>
-                                            )}
-                                            {(!msg.status || msg.status === "sent") && (
-                                                <>
-                                                    <span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
-                                                    <span className="text-xs text-gray-400 font-medium">Sent</span>
-                                                </>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                        </div>
-                    ))}
-                    <div ref={bottomRef} />
-                </main>
-
-                {/* Message Input */}
-                <div className="p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 sticky bottom-0">
-                    <div className="flex items-center space-x-3">
-                        <form className="flex-1 relative" onSubmit={(e) => sendMessage(e, selectedUser._id)}>
-                            <input
-                                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full focus:ring-emerald-400 focus:border-emerald-400 pr-12 text-white placeholder-gray-400"
-                                placeholder={`Message ${selectedUser.name}...`}
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-
-                            />
-                            <button
-                                onClick={(e) => sendMessage(e, selectedUser._id)}
-                                disabled={!input.trim()}
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-2 rounded-full hover:from-emerald-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                            >
-                                <Send className="w-4 h-4" />
-                            </button>
-                        </form>
-                    </div>
+            <div className="flex flex-col items-center justify-center flex-1 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-center px-6">
+                <div className="bg-white/5 rounded-full p-6 mb-6">
+                    <MessageCircleMore className="w-10 h-10 text-emerald-400" />
                 </div>
-            </div>)}
-            {!selectedUser && (
-                <div className="flex flex-col items-center justify-center flex-1 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-center px-6">
-                    <div className="bg-white/5 rounded-full p-6 mb-6">
-                        <MessageCircleMore className="w-10 h-10 text-emerald-400" />
-                    </div>
-                    <h2 className="text-3xl font-semibold text-white mb-2">Start Messaging</h2>
-                </div>
-            )}
+                <h2 className="text-3xl font-semibold text-white mb-2">Start Messaging</h2>
+            </div>
         </div>
     )
 }

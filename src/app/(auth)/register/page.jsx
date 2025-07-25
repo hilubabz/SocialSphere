@@ -6,8 +6,6 @@ import { User, Mail, Lock, Calendar, Upload, Camera, ArrowRight, Check } from "l
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 
-
-
 export default function Page() {
   const [regInfo, setRegInfo] = useState({
     name: "",

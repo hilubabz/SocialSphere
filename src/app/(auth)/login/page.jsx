@@ -3,17 +3,13 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { User, Lock, LogIn } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { io } from "socket.io-client"
 
-let socket
 export default function Page() {
   const [login, setLogin] = useState({ username: "", password: "" })
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [id,setId]=useState(null)
   const router = useRouter()
-
-
   
   const handleChange = (event) => {
     const { name, value } = event.target

@@ -8,10 +8,10 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useUserData } from "@/context/userContext"
 import { toast } from "react-toastify"
-import { io } from "socket.io-client"
 import { useRouter } from "next/navigation"
+import { useSocketData } from "@/context/socketContext"
 
-let socket
+
 export default function Post({ postData, userId, setPost, selfProfile, comment, setComment, like, setLike, setNewFollow, followers, following, singlePost, friend }) {
   const { userData, setUserData } = useUserData()
   const [showComments, setShowComments] = useState(false)
@@ -232,9 +232,12 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
     }
   }
 
-  useEffect(()=>{
-    socket=io()
-  },[])
+  // useEffect(()=>{
+  //   socket=io()
+  // },[])
+  const socketContext=useSocketData()
+  if(!socketContext) return <div>Loading....</div>
+  const {socket,socketConnected}=socketContext
 
   const handleShare = async () => {
       try {
@@ -253,7 +256,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
             const result = await res.json()
             if (result.success) {
               toast.success('Link sent successfully')
-                socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: selectedFriendId, msg: 'Shared a link' })
+                socket&&socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: selectedFriendId, msg: 'Shared a link' })
                 router.push(`/message/${selectedFriendId}`)
                 // setInput('')
                 // setCheckSentMessage(!checkSentMessage)
@@ -325,7 +328,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
               </div>
             )}
             <div className="relative">
-              {selfProfile && (<button
+              {(selfProfile||userData.isAdmin) && (<button
                 className="text-white/60 hover:text-white p-2 rounded-full hover:bg-gray-700/50 transition-colors"
                 onClick={() => setShowMoreOptions((prev) => !prev)}
               >
@@ -517,7 +520,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
                             {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
                           </span>
                         </div>
-                        {userData && comments.userId._id == userData._id && (<div className="text-red-700 flex gap-x-2 cursor-pointer" onClick={() => setShowRemoveConfirm(true)}>
+                        {userData && (comments.userId._id == userData._id||userData.isAdmin) && (<div className="text-red-700 flex gap-x-2 cursor-pointer" onClick={() => setShowRemoveConfirm(true)}>
                           <Trash />
                           Delete
                         </div>)}
