@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import { Send, Search, MoreVertical, Info, MessageCircleMore } from "lucide-react"
 import { useUserData } from "@/context/userContext"
 import Friend from "@/components/friend"
-import { io } from "socket.io-client"
 import { useParams, useRouter } from "next/navigation"
 import { useSocketData } from "@/context/socketContext"
+import LoadingComponent from "@/components/loadingComponent"
 
 
 export default function ChatPage() {
@@ -76,7 +76,7 @@ export default function ChatPage() {
             const result = await res.json()
             setUserMessage(result.data)
         }
-        if(!userData?._id) return
+        if (!userData?._id) return
         fetchMessages()
     }, [userData._id, checkSentMessage, newMessage])
     // console.log(userMessage)
@@ -255,8 +255,8 @@ export default function ChatPage() {
                 {/* Chat Header */}
                 <header className="p-3 sm:p-4 bg-black/20 backdrop-blur-sm border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                        <button 
-                            onClick={() => router.push('/message')} 
+                        <button
+                            onClick={() => router.push('/message')}
                             className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -289,58 +289,85 @@ export default function ChatPage() {
 
                 {/* Messages Area */}
                 <main className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20">
-                    {selectedUserMessage.map((msg) => (
-                        <div key={msg._id} className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}>
-                            <div className={`flex items-end space-x-2 max-w-[85%] sm:max-w-md ${msg.senderId === userData._id ? "flex-row-reverse space-x-reverse" : ""}`}>
+                    {(!selectedUserMessage || selectedUserMessage.length === 0) ? (
+                        <div className="h-full flex items-center justify-center min-h-[200px]">
+                            <LoadingComponent />
+                        </div>
+                    ) : (
+                        <>
+                            {selectedUserMessage.map((msg) => (
                                 <div
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}
-                                    style={msg.senderId === userData._id ? {} : { backgroundColor: selectedUser.color }}
+                                    key={msg._id}
+                                    className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}
                                 >
-                                    <img src={msg.senderId === userData._id ? userData.profilePicture : selectedUser.profilePicture} alt="profile" className="h-full w-full object-cover rounded-full" />
-                                </div>
-                                <div className="flex flex-col items-end w-full">
                                     <div
-                                        className={`px-4 py-2 rounded-2xl ${msg.senderId === userData._id
-                                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-br-md"
-                                            : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
-                                            }`}
+                                        className={`flex items-end space-x-2 max-w-[85%] sm:max-w-md ${msg.senderId === userData._id ? "flex-row-reverse space-x-reverse" : ""}`}
                                     >
-                                        {msg.messageType != 'link' && <p className="text-sm">{msg.message}</p>}
-                                        {msg.messageType == 'link' && <p onClick={() => handleLink(msg.message)} className="text-sm text-blue-700 underline cursor-pointer">{msg.message}</p>}
-                                        <p className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}>
-                                            {formatTime(msg.createdAt)}
-                                        </p>
-                                    </div>
-                                    {/* Message status for sent messages */}
-                                    {msg.senderId === userData._id && (
-                                        <div className="flex items-center gap-1 mt-1 mr-2">
-                                            {msg.status === "seen" && (
-                                                <>
-                                                    <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
-                                                    <span className="text-xs text-green-400 font-medium">Seen</span>
-                                                </>
-                                            )}
-                                            {msg.status === "delivered" && msg.status !== "seen" && (
-                                                <>
-                                                    <span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
-                                                    <span className="text-xs text-blue-400 font-medium">Delivered</span>
-                                                </>
-                                            )}
-                                            {(!msg.status || msg.status === "sent") && (
-                                                <>
-                                                    <span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
-                                                    <span className="text-xs text-gray-400 font-medium">Sent</span>
-                                                </>
+                                        <div
+                                            className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}
+                                            style={msg.senderId === userData._id ? {} : { backgroundColor: selectedUser.color }}
+                                        >
+                                            <img
+                                                src={msg.senderId === userData._id ? userData.profilePicture : selectedUser.profilePicture}
+                                                alt="profile"
+                                                className="h-full w-full object-cover rounded-full"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col items-end w-full">
+                                            <div
+                                                className={`px-4 py-2 rounded-2xl ${msg.senderId === userData._id
+                                                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-br-md"
+                                                    : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
+                                                }`}
+                                            >
+                                                {msg.messageType !== "link" && (
+                                                    <p className="text-sm">{msg.message}</p>
+                                                )}
+                                                {msg.messageType === "link" && (
+                                                    <p
+                                                        onClick={() => handleLink(msg.message)}
+                                                        className="text-sm text-blue-700 underline cursor-pointer"
+                                                    >
+                                                        {msg.message}
+                                                    </p>
+                                                )}
+                                                <p
+                                                    className={`text-xs mt-1 ${msg.senderId === userData._id ? "text-emerald-100" : "text-gray-400"}`}
+                                                >
+                                                    {formatTime(msg.createdAt)}
+                                                </p>
+                                            </div>
+                                            {msg.senderId === userData._id && (
+                                                <div className="flex items-center gap-1 mt-1 mr-2">
+                                                    {msg.status === "seen" && (
+                                                        <>
+                                                            <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                                                            <span className="text-xs text-green-400 font-medium">Seen</span>
+                                                        </>
+                                                    )}
+                                                    {msg.status === "delivered" && msg.status !== "seen" && (
+                                                        <>
+                                                            <span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+                                                            <span className="text-xs text-blue-400 font-medium">Delivered</span>
+                                                        </>
+                                                    )}
+                                                    {(!msg.status || msg.status === "sent") && (
+                                                        <>
+                                                            <span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
+                                                            <span className="text-xs text-gray-400 font-medium">Sent</span>
+                                                        </>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
-                            </div>
-
-                        </div>
-                    ))}
-                    <div ref={bottomRef} />
+                            ))}
+                            <div ref={bottomRef} />
+                        </>
+                    )}
                 </main>
+
 
                 {/* Message Input */}
                 <div className="p-2 sm:p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 fixed bottom-[2.75rem] left-0 right-0 md:sticky md:bottom-0 z-20 mb-2">

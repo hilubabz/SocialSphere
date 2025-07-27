@@ -1,5 +1,6 @@
 "use client"
 
+import LoadingComponent from "@/components/loadingComponent";
 import PeopleCard from "@/components/peopleCard";
 import { useUserData } from "@/context/userContext";
 import { useState, useEffect } from "react";
@@ -26,7 +27,9 @@ export default function Page() {
     }
     fetchUser()
   }, [userData, check])
-
+  if(!users){
+    return <LoadingComponent/>
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
       {/* Header */}

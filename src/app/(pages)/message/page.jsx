@@ -5,6 +5,7 @@ import { Send, Search, MoreVertical, Info, MessageCircleMore } from "lucide-reac
 import { useUserData } from "@/context/userContext"
 import Friend from "@/components/friend"
 import { useSocketData } from "@/context/socketContext"
+import LoadingComponent from "@/components/loadingComponent"
 
 let socket
 export default function ChatPage() {
@@ -24,14 +25,14 @@ export default function ChatPage() {
     // console.log("Online Users: ",onlineUsers)
 
 
-    const formatTime = (timestamp) => {
-        const date = new Date(timestamp);
-        return date.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-        });
-    };
+    // const formatTime = (timestamp) => {
+    //     const date = new Date(timestamp);
+    //     return date.toLocaleTimeString("en-US", {
+    //         hour: "2-digit",
+    //         minute: "2-digit",
+    //         hour12: false,
+    //     });
+    // };
 
     useEffect(() => {
         const fetchFriends = async () => {
@@ -111,7 +112,9 @@ export default function ChatPage() {
             bottomRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [selectedUserMessage]);
-
+    if(!friend){
+        return <LoadingComponent/>
+    }
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             {/* Sidebar */}

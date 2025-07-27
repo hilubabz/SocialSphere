@@ -1,5 +1,6 @@
 "use client"
 
+import LoadingComponent from "@/components/loadingComponent"
 import Post from "@/components/postComponent"
 import { useSocketData } from "@/context/socketContext"
 import { useUserData } from "@/context/userContext"
@@ -165,7 +166,7 @@ export default function ProfilePage() {
     }
   }
 
-  if (!profileUser) return <div className="text-white text-center mt-10">Loading...</div>
+  if (!profileUser) return <LoadingComponent/>
   else
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-md">

@@ -2,6 +2,7 @@
 
 import CreatePost from "@/components/createPost"
 import FollowCard from "@/components/followCard"
+import LoadingComponent from "@/components/loadingComponent"
 import Post from "@/components/postComponent"
 import Stats from "@/components/stats"
 import { useUserData } from "@/context/userContext"
@@ -11,7 +12,7 @@ export default function Page() {
   const { userData, setUserData } = useUserData()
   const [followingPost, setFollowingPost] = useState()
   const [postToggle, setPostToggle] = useState(false)
-  const [post, setPost] = useState([])
+  const [post, setPost] = useState()
   const [comment, setComment] = useState([])
   const [like, setLike] = useState(0)
   const [followers, setFollowers] = useState([])
@@ -100,7 +101,9 @@ export default function Page() {
     if(!userData?._id) return
     fetchFriends()
   }, [userData._id])
-
+  if(!post){
+    return <LoadingComponent/> 
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
 
