@@ -135,7 +135,7 @@ export default function ChatPage() {
                 </div>
 
                 {/* Users List */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto mb-12">
                     {friend &&
                         [...friend]
                             .sort((a, b) => {
