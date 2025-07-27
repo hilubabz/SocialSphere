@@ -288,7 +288,7 @@ export default function ChatPage() {
                 </header>
 
                 {/* Messages Area */}
-                <main className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20">
+                <main className="flex-1 overflow-y-auto p-3 overscroll-contain touch-pan-x touch-pan-down sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20 ">
                     {(!selectedUserMessage || selectedUserMessage.length === 0) ? (
                         <div className="h-full flex items-center justify-center min-h-[200px]">
                             <LoadingComponent />
