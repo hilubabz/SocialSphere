@@ -101,14 +101,18 @@ export default function Page() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-            <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto p-4 pt-6 ">
-                <div className="col-span-3"></div>
-                <div className="col-span-6">
+            <div className="grid grid-cols-1 md:grid-cols-8 lg:grid-cols-12 gap-4 md:gap-6 max-w-7xl mx-auto p-3 sm:p-4 pt-4 sm:pt-6">
+                <div className="hidden md:block md:col-span-2 lg:col-span-3"></div>
+                <div className="col-span-1 md:col-span-4 lg:col-span-6">
                     {postData && followers && following && (<Post postData={postData} userId={userData._id} setPost={setPostData} selfProfile={selfProfile} comment={comment} setComment={setComment} like={like} setLike={setLike} setNewFollow={setNewFollow} followers={followers} following={following} singlePost={singlePost} friend={friend}/>)}
 
-                    {!postData && <div>Loading...</div>}
+                    {!postData && (
+                        <div className="flex items-center justify-center p-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500"></div>
+                        </div>
+                    )}
                 </div>
-                <div className="col-span-3"></div>
+                <div className="hidden md:block md:col-span-2 lg:col-span-3"></div>
             </div>
         </div>
     )

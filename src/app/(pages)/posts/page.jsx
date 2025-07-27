@@ -104,10 +104,10 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
 
-      <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto p-4 pt-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 max-w-7xl mx-auto p-4 pt-6">
 
-        <div className="col-span-3 space-y-4 sticky top-20 self-start">
-          <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/40 shadow-xl">
+        <div className="hidden md:block md:col-span-3 space-y-4 sticky top-20 self-start">
+          <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-4 md:p-6 border border-gray-700/40 shadow-xl">
             <div className="flex items-center space-x-2 mb-4">
               <h3 className="text-white font-semibold">Posts</h3>
             </div>
@@ -131,7 +131,23 @@ export default function Page() {
         </div>
 
 
-        <div className="col-span-6 space-y-6">
+        {/* Mobile Post Toggle */}
+        <div className="flex md:hidden justify-between items-center w-full bg-gray-800/60 backdrop-blur-lg rounded-xl p-3 mb-4">
+          <button
+            className={`flex-1 text-center py-2 px-3 rounded-lg transition-colors ${!postToggle ? "bg-emerald-500 text-white" : "text-gray-300"}`}
+            onClick={() => setPostToggle(false)}
+          >
+            All Posts
+          </button>
+          <button
+            className={`flex-1 text-center py-2 px-3 rounded-lg transition-colors ${postToggle ? "bg-emerald-500 text-white" : "text-gray-300"}`}
+            onClick={() => setPostToggle(true)}
+          >
+            Following
+          </button>
+        </div>
+
+        <div className="col-span-1 md:col-span-6 space-y-4 md:space-y-6">
           <CreatePost />
           {!postToggle &&
             post &&

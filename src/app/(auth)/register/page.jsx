@@ -144,11 +144,11 @@ export default function Page() {
   }
   console.log(regInfo)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4 overflow-hidden">
-      <div className="shadow-2xl shadow-emerald-500/10 rounded-2xl">
-        <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl shadow-emerald-500/20 border border-gray-700 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center px-4 py-8 md:p-4 overflow-hidden">
+      <div className="shadow-2xl shadow-emerald-500/10 rounded-2xl w-full">
+        <div className="w-full max-w-2xl mx-auto bg-gray-800 rounded-2xl shadow-2xl shadow-emerald-500/20 border border-gray-700 overflow-hidden">
           {/* Progress Indicator */}
-          <div className="px-8 pt-8 pb-4">
+          <div className="px-4 sm:px-8 pt-6 sm:pt-8 pb-4">
             <div className="flex items-center justify-center space-x-4">
               <div className="flex items-center">
                 <div
@@ -157,7 +157,7 @@ export default function Page() {
                 >
                   {!valid ? "1" : <Check className="w-4 h-4" />}
                 </div>
-                <span className="ml-2 text-sm font-medium text-gray-200">Account Details</span>
+                <span className="ml-2 text-xs sm:text-sm font-medium text-gray-200">Account Details</span>
               </div>
               <div
                 className={`w-12 h-px transition-colors duration-300 ${valid ? "bg-green-300" : "bg-emerald-300"}`}
@@ -169,9 +169,7 @@ export default function Page() {
                 >
                   2
                 </div>
-                <span
-                  className={`ml-2 text-sm font-medium transition-colors duration-300 ${valid ? "text-gray-200" : "text-gray-500"}`}
-                >
+                <span className={`ml-2 text-xs sm:text-sm font-medium transition-colors duration-300 ${valid ? "text-gray-200" : "text-gray-500"}`}>
                   Profile Setup
                 </span>
               </div>
@@ -181,21 +179,21 @@ export default function Page() {
           <div className="relative">
             {/* Step 1: Registration Form */}
             <div
-              className={`p-8 lg:p-12 transition-all duration-500 ease-in-out ${valid
+              className={`p-4 sm:p-8 lg:p-12 transition-all duration-500 ease-in-out ${valid
                 ? "transform -translate-x-full opacity-0 pointer-events-none absolute inset-0"
                 : "transform translate-x-0 opacity-100 relative"
                 }`}
             >
               <div className="max-w-md mx-auto">
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent mb-2">
                     Create Account
                   </h1>
                   <p className="text-gray-400">Join our community today</p>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-gray-200 text-sm font-medium">Full Name</label>
                       <div className="relative">
@@ -248,7 +246,7 @@ export default function Page() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-gray-200 text-sm font-medium">Date of Birth</label>
                       <div className="relative">
@@ -367,7 +365,7 @@ export default function Page() {
 
             {/* Step 2: Profile Setup */}
             <div
-              className={`p-12 transition-all duration-500 ease-in-out w-[40rem] ${valid
+              className={`p-4 sm:p-8 lg:p-12 transition-all duration-500 ease-in-out w-full max-w-[40rem] mx-auto ${valid
                 ? "transform translate-x-0 opacity-100 relative"
                 : "transform translate-x-full opacity-0 pointer-events-none absolute inset-0"
                 }`}
@@ -395,7 +393,7 @@ export default function Page() {
                     />
                     <div
                       onClick={() => coverPictureRef.current.click()}
-                      className="relative w-full h-32 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl border-2 border-dashed border-gray-500 cursor-pointer hover:border-emerald-400 hover:from-gray-600 hover:to-gray-500 transition-all duration-200 overflow-hidden group"
+                      className="relative w-full h-24 sm:h-32 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl border-2 border-dashed border-gray-500 cursor-pointer hover:border-emerald-400 hover:from-gray-600 hover:to-gray-500 transition-all duration-200 overflow-hidden group"
                     >
                       {coverPicture ? (
                         <img

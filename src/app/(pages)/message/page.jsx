@@ -106,10 +106,10 @@ export default function ChatPage() {
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             {/* Sidebar */}
-            <div className="w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex flex-col">
+            <div className="w-full md:w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex flex-col">
                 {/* Sidebar Header */}
-                <div className="p-4 border-b border-white/10">
-                    <h1 className="text-xl font-bold text-white mb-4">Messages</h1>
+                <div className="p-3 sm:p-4 border-b border-white/10">
+                    <h1 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Messages</h1>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
@@ -149,7 +149,7 @@ export default function ChatPage() {
 
             {/* Main Chat Area */}
 
-            <div className="flex flex-col items-center justify-center flex-1 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-center px-6">
+            <div className="hidden md:flex flex-col items-center justify-center flex-1 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-center px-6">
                 <div className="bg-white/5 rounded-full p-6 mb-6">
                     <MessageCircleMore className="w-10 h-10 text-emerald-400" />
                 </div>

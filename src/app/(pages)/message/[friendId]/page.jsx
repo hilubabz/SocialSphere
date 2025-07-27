@@ -5,11 +5,12 @@ import { Send, Search, MoreVertical, Info, MessageCircleMore } from "lucide-reac
 import { useUserData } from "@/context/userContext"
 import Friend from "@/components/friend"
 import { io } from "socket.io-client"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useSocketData } from "@/context/socketContext"
 
 
 export default function ChatPage() {
+    const router = useRouter()
     const [userMessage, setUserMessage] = useState([])
     const [selectedUserMessage, setSelectedUserMessage] = useState([])
     const [input, setInput] = useState("")
@@ -80,46 +81,61 @@ export default function ChatPage() {
     }, [userData._id, checkSentMessage, newMessage])
     // console.log(userMessage)
     useEffect(() => {
-        let res = userMessage.filter(val => (val.senderId == selectedUser._id || val.receiverId == selectedUser._id))
-        setSelectedUserMessage(res)
+        if (selectedUser?._id && userMessage) {
+            let res = userMessage.filter(val => (val.senderId === selectedUser._id || val.receiverId === selectedUser._id))
+            setSelectedUserMessage(res)
+        } else {
+            setSelectedUserMessage([])
+        }
     }, [selectedUser, userMessage])
 
 
     const socketContext = useSocketData()
     if (!socketContext) return <div>Loading....</div>
     const { socket, socketConnected } = socketContext
+
     useEffect(() => {
-        if(!userData?._id) return
-        if (socketConnected) {
-            socket.on('message', (msg) => {
-                if (userData._id == msg.receiverId || userData._id == msg.senderId) {
-                    if (userData._id == msg.receiverId) {
-                        socket.emit('messageDelivered', msg)
-                    }
-                    console.log(msg.receiverId)
-                    setNewMessage(prev => prev + 1)
+        if (!userData?._id || !socketConnected || !socket) return
+
+        // Set up socket event listeners
+        const handleMessage = (msg) => {
+            if (userData._id === msg.receiverId || userData._id === msg.senderId) {
+                if (userData._id === msg.receiverId) {
+                    socket.emit('messageDelivered', msg)
                 }
-            })
-            socket.on('onlineUsers', (onlineUsers) => {
-                setOnlineUsers(onlineUsers)
-            })
-
-            socket.on('message_delivered', (msg) => {
                 setNewMessage(prev => prev + 1)
-            })
-
-            socket.on('messageDelivered', (msg) => {
-                setNewMessage(prev => prev + 1)
-            })
-            socket.on('messageSeen', (messageId) => {
-                setNewMessage(prev => prev + 1)
-            })
-
-            socket.on('offlineUsers', (onlineUsers) => {
-                setOnlineUsers(onlineUsers)
-            })
+            }
         }
-    }, [userData._id])
+
+        const handleOnlineUsers = (users) => {
+            setOnlineUsers(users)
+        }
+
+        const handleMessageUpdates = () => {
+            setNewMessage(prev => prev + 1)
+        }
+
+        // Add event listeners
+        socket.on('message', handleMessage)
+        socket.on('onlineUsers', handleOnlineUsers)
+        socket.on('message_delivered', handleMessageUpdates)
+        socket.on('messageDelivered', handleMessageUpdates)
+        socket.on('messageSeen', handleMessageUpdates)
+        socket.on('offlineUsers', handleOnlineUsers)
+
+        // Emit that user is online
+        socket.emit('online', userData._id)
+
+        // Cleanup function
+        return () => {
+            socket.off('message', handleMessage)
+            socket.off('onlineUsers', handleOnlineUsers)
+            socket.off('message_delivered', handleMessageUpdates)
+            socket.off('messageDelivered', handleMessageUpdates)
+            socket.off('messageSeen', handleMessageUpdates)
+            socket.off('offlineUsers', handleOnlineUsers)
+        }
+    }, [userData?._id, socketConnected, socket])
     console.log('Online Users: ', onlineUsers)
     useEffect(() => {
         if (bottomRef.current) {
@@ -193,10 +209,10 @@ export default function ChatPage() {
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             {/* Sidebar */}
-            <div className="w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex flex-col">
+            <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex-col`}>
                 {/* Sidebar Header */}
-                <div className="p-4 border-b border-white/10">
-                    <h1 className="text-xl font-bold text-white mb-4">Messages</h1>
+                <div className="p-3 sm:p-4 border-b border-white/10">
+                    <h1 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Messages</h1>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
@@ -235,12 +251,20 @@ export default function ChatPage() {
             </div>
 
             {/* Main Chat Area */}
-            {selectedUser && (<div className="flex-1 flex flex-col">
+            {selectedUser && (<div className="flex-1 flex flex-col w-full">
                 {/* Chat Header */}
-                <header className="p-4 bg-black/20 backdrop-blur-sm border-b border-white/10 flex items-center justify-between">
+                <header className="p-3 sm:p-4 bg-black/20 backdrop-blur-sm border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
+                        <button 
+                            onClick={() => router.push('/message')} 
+                            className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
                         <div className="relative">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold`}>
+                            <div className={`w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center text-white font-semibold`}>
                                 <img
                                     src={selectedUser?.profilePicture || "/placeholder.svg"}
                                     className="h-full w-full object-cover rounded-full"
@@ -264,10 +288,10 @@ export default function ChatPage() {
                 </header>
 
                 {/* Messages Area */}
-                <main className="flex-1 overflow-y-auto p-6 space-y-4">
+                <main className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20">
                     {selectedUserMessage.map((msg) => (
                         <div key={msg._id} className={`flex ${msg.senderId === userData._id ? "justify-end" : "justify-start"}`}>
-                            <div className={`flex items-end space-x-2 max-w-md ${msg.senderId === userData._id ? "flex-row-reverse space-x-reverse" : ""}`}>
+                            <div className={`flex items-end space-x-2 max-w-[85%] sm:max-w-md ${msg.senderId === userData._id ? "flex-row-reverse space-x-reverse" : ""}`}>
                                 <div
                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold`}
                                     style={msg.senderId === userData._id ? {} : { backgroundColor: selectedUser.color }}
@@ -319,11 +343,11 @@ export default function ChatPage() {
                 </main>
 
                 {/* Message Input */}
-                <div className="p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 sticky bottom-0">
-                    <div className="flex items-center space-x-3">
+                <div className="p-2 sm:p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 fixed bottom-[2.75rem] left-0 right-0 md:sticky md:bottom-0 z-20 mb-2">
+                    <div className="flex items-center space-x-2 sm:space-x-3 max-w-full px-2">
                         <form className="flex-1 relative" onSubmit={(e) => sendMessage(e, selectedUser._id)}>
                             <input
-                                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-full focus:ring-emerald-400 focus:border-emerald-400 pr-12 text-white placeholder-gray-400"
+                                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/10 border border-white/20 rounded-full focus:ring-emerald-400 focus:border-emerald-400 pr-10 sm:pr-12 text-white placeholder-gray-400 text-sm sm:text-base"
                                 placeholder={`Message ${selectedUser.name}...`}
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
@@ -341,7 +365,7 @@ export default function ChatPage() {
                 </div>
             </div>)}
             {!selectedUser && (
-                <div className="flex flex-col items-center justify-center flex-1 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-center px-6">
+                <div className="hidden md:flex flex-col items-center justify-center flex-1 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-center px-6">
                     <div className="bg-white/5 rounded-full p-6 mb-6">
                         <MessageCircleMore className="w-10 h-10 text-emerald-400" />
                     </div>
