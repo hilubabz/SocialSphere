@@ -274,24 +274,26 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
     <>
       <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl border border-gray-700/40 shadow-xl overflow-hidden">
         {/* Post Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700/30">
-          <div className="flex items-center space-x-3">
-            <div className="h-12 w-12 rounded-full overflow-hidden ring-2 ring-emerald-400/50">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-700/30">
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden ring-2 ring-emerald-400/50 flex-shrink-0">
               <img
                 src={postData.userId?.profilePicture || "/placeholder.svg"}
                 className="h-full w-full object-cover"
                 alt="Profile"
               />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <Link
                 href={`/profile/${postData.userId?._id}`}
-                className="text-white font-semibold hover:text-emerald-300 cursor-pointer transition-colors"
+                className="text-white font-semibold hover:text-emerald-300 cursor-pointer transition-colors block truncate text-sm sm:text-base"
               >
                 {postData.userId?.name}
               </Link>
-              <div className="text-gray-400 text-sm">
-                {postData.userId?.username} • {formatDistanceToNow(new Date(postData.createdAt), { addSuffix: true })}
+              <div className="text-gray-400 text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2">
+                <span className="truncate">@{postData.userId?.username}</span>
+                <span className="flex-shrink-0">•</span>
+                <span className="flex-shrink-0">{formatDistanceToNow(new Date(postData.createdAt), { addSuffix: true })}</span>
               </div>
             </div>
           </div>
@@ -313,15 +315,15 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
                 )}
 
                 {!isFollowing && isFollower && (
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2" onClick={followUser}>
-                    <UserPlus className="w-4 h-4" />
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-1 sm:space-x-2 whitespace-nowrap text-sm sm:text-base" onClick={followUser}>
+                    <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>Follow Back</span>
                   </button>
                 )}
 
                 {isFollower && isFollowing && (
-                  <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2" onClick={unfollowUser}>
-                    <UserPlus className="w-4 h-4" />
+                  <button className="bg-purple-500 hover:bg-purple-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base" onClick={unfollowUser}>
+                    <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>Friends</span>
                   </button>
                 )}
@@ -388,33 +390,33 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
         {/*Like Comment*/}
         <div className="p-6 border-t border-gray-700/30">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <button className="flex items-center space-x-2 text-white/70 hover:text-red-400 transition-colors group">
-                <div className="p-2 rounded-full group-hover:bg-red-500/10 transition-colors">
+            <div className="flex items-center space-x-4 sm:space-x-6">
+              <button className="flex items-center space-x-1.5 sm:space-x-2 text-white/70 hover:text-red-400 transition-colors group">
+                <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-red-500/10 transition-colors">
                   <Heart
-                    className={`w-5 h-5 transition-all ease-in-out duration-400 ${postData.likes.includes(userId) ? "fill-red-600 text-red-600" : ""}`}
+                    className={`w-4 h-4 sm:w-5 sm:h-5 transition-all ease-in-out duration-400 ${postData.likes.includes(userId) ? "fill-red-600 text-red-600" : ""}`}
                     onClick={toggleLike}
                   />
                 </div>
-                <span className="text-sm font-medium">{postData.likes.length} Likes</span>
+                <span className="text-xs sm:text-sm font-medium">{postData.likes.length}<span className="hidden sm:inline"> Likes</span></span>
               </button>
               <button
                 onClick={toggleComments}
-                className="flex items-center space-x-2 text-white/70 hover:text-emerald-400 transition-colors group"
+                className="flex items-center space-x-1.5 sm:space-x-2 text-white/70 hover:text-emerald-400 transition-colors group"
               >
-                <div className="p-2 rounded-full group-hover:bg-emerald-500/10 transition-colors">
-                  <MessageCircle className="w-5 h-5" />
+                <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-emerald-500/10 transition-colors">
+                  <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-sm font-medium">{postData.comments.length} Comments</span>
+                <span className="text-xs sm:text-sm font-medium">{postData.comments.length}<span className="hidden sm:inline"> Comments</span></span>
               </button>
               <button
                 onClick={() => setOpen(true)}
-                className="flex items-center space-x-2 text-white/70 hover:text-emerald-400 transition-colors group"
+                className="flex items-center space-x-1.5 sm:space-x-2 text-white/70 hover:text-emerald-400 transition-colors group"
               >
-                <div className="p-2 rounded-full group-hover:bg-emerald-500/10 transition-colors">
-                  <Share className="w-5 h-5" />
+                <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-emerald-500/10 transition-colors">
+                  <Share className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-sm font-medium">Share</span>
+                <span className="text-xs sm:text-sm font-medium"><span className="hidden sm:inline">Share</span></span>
               </button>
 
               {/* Share Modal Overlay */}
@@ -479,59 +481,64 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
 
       {/* Comments Modal Overlay */}
       {showComments && typeof window !== "undefined" && createPortal(
-        <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4`}>
-          <div className="bg-gray-800/90 backdrop-blur-lg rounded-2xl border border-gray-700/50 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 sm:p-4`}>
+          <div className="bg-gray-800/90 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-gray-700/50 shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-700/40">
-              <h2 className="text-white font-semibold text-lg">Comments</h2>
+            <div className="flex items-center justify-between p-3 sm:p-6 border-b border-gray-700/40">
+              <h2 className="text-white font-semibold text-base sm:text-lg">Comments</h2>
               <button
                 onClick={toggleComments}
-                className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+                className="text-white/60 hover:text-white p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Comments List */}
-            <div className="flex flex-col overflow-y-auto max-h-[60vh] min-h-[300px]">
+            <div className="flex flex-col overflow-y-auto max-h-[50vh] sm:max-h-[60vh] min-h-[250px] sm:min-h-[300px]">
               {comment.map((comments, index) => (
                 <div
                   key={comments._id}
                   ref={index === comment.length - 1 ? latestCommentRef : null}
-                  className="p-4 border-b border-gray-700/30 last:border-b-0 hover:bg-gray-700/30 transition-colors h-30"
+                  className="p-3 sm:p-4 border-b border-gray-700/30 last:border-b-0 hover:bg-gray-700/30 transition-colors"
                 >
-                  <div className="flex items-start space-x-3">
-                    <div className="h-10 w-10 rounded-full overflow-hidden ring-2 ring-emerald-400/30 flex-shrink-0">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden ring-2 ring-emerald-400/30 flex-shrink-0">
                       <img
                         src={comments.userId?.profilePicture || "/placeholder.svg"}
                         className="h-full w-full object-cover"
                         alt={comments.userId?.name}
                       />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between mb-2">
-                        <div className="flex space-x-2">
-                          <span className="text-white font-medium hover:text-emerald-300 cursor-pointer transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap justify-between gap-2 mb-1.5 sm:mb-2">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className="text-white text-sm sm:text-base font-medium hover:text-emerald-300 cursor-pointer transition-colors truncate max-w-[120px] sm:max-w-none">
                             {comments.userId?.name}
                           </span>
-                          <span className="text-gray-400 text-sm">@{comments.userId?.username}</span>
-                          <span className="text-gray-500 text-sm">•</span>
-                          <span className="text-gray-400 text-sm">
+                          <span className="text-gray-400 text-xs sm:text-sm truncate">@{comments.userId?.username}</span>
+                          <span className="text-gray-500 text-xs sm:text-sm hidden sm:inline">•</span>
+                          <span className="text-gray-400 text-xs sm:text-sm">
                             {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
                           </span>
                         </div>
-                        {userData && (comments.userId._id == userData._id||userData.isAdmin) && (<div className="text-red-700 flex gap-x-2 cursor-pointer" onClick={() => setShowRemoveConfirm(true)}>
-                          <Trash />
-                          Delete
-                        </div>)}
+                        {userData && (comments.userId._id == userData._id||userData.isAdmin) && (
+                          <div 
+                            className="text-red-700 flex items-center gap-x-1 sm:gap-x-2 cursor-pointer text-sm sm:text-base" 
+                            onClick={() => setShowRemoveConfirm(true)}
+                          >
+                            <Trash className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="hidden sm:inline">Delete</span>
+                          </div>
+                        )}
                         {showRemoveConfirm && (
-                          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60">
-                            <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-8 w-full max-w-xs flex flex-col items-center animate-fade-in">
-                              <h3 className="text-lg font-semibold text-white mb-4">Remove Post?</h3>
-                              <p className="text-gray-300 mb-6 text-center">Are you sure you want to remove this Comment? This action cannot be undone.</p>
-                              <div className="flex gap-4 w-full">
+                          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                            <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-4 sm:p-8 w-full max-w-xs flex flex-col items-center animate-fade-in">
+                              <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Remove Comment?</h3>
+                              <p className="text-gray-300 mb-4 sm:mb-6 text-center text-sm sm:text-base">Are you sure you want to remove this comment? This action cannot be undone.</p>
+                              <div className="flex gap-2 sm:gap-4 w-full">
                                 <button
-                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition-colors"
+                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 text-sm sm:text-base rounded-lg transition-colors"
                                   onClick={() => deleteComment(comments._id)}
                                 >
                                   Yes, Remove
@@ -547,7 +554,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
                           </div>
                         )}
                       </div>
-                      <p className="text-white/90 leading-relaxed">{comments.text}</p>
+                      <p className="text-white/90 leading-relaxed text-sm sm:text-base break-words">{comments.text}</p>
                     </div>
                   </div>
                 </div>

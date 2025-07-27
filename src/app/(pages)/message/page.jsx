@@ -73,29 +73,38 @@ export default function ChatPage() {
     const socketContext = useSocketData()
     if (!socketContext) return
     const { socket, socketConnected } = socketContext
+
     useEffect(() => {
-        if (socketConnected) {
-            socket.on('onlineUsers', (onlineUsers) => {
-                setOnlineUsers(onlineUsers)
-            })
+        if (!socketConnected || !socket || !userData?._id) return
 
-            socket.on('message_delivered', (msg) => {
-                setNewMessage(prev => prev + 1)
-            })
+        // Emit online status when component mounts
+        socket.emit('online', userData._id)
 
-            socket.on('messageDelivered', (msg) => {
-                setNewMessage(prev => prev + 1)
-            })
-            socket.on('messageSeen', (messageId) => {
-                setNewMessage(prev => prev + 1)
-            })
-
-            socket.on('offlineUsers', (onlineUsers) => {
-                setOnlineUsers(onlineUsers)
-            })
+        // Set up event listeners
+        const handleOnlineUsers = (users) => {
+            setOnlineUsers(users)
         }
 
-    }, [userData])
+        const handleMessageUpdates = () => {
+            setNewMessage(prev => prev + 1)
+        }
+
+        // Add event listeners
+        socket.on('onlineUsers', handleOnlineUsers)
+        socket.on('message_delivered', handleMessageUpdates)
+        socket.on('messageDelivered', handleMessageUpdates)
+        socket.on('messageSeen', handleMessageUpdates)
+        socket.on('offlineUsers', handleOnlineUsers)
+
+        // Cleanup function
+        return () => {
+            socket.off('onlineUsers', handleOnlineUsers)
+            socket.off('message_delivered', handleMessageUpdates)
+            socket.off('messageDelivered', handleMessageUpdates)
+            socket.off('messageSeen', handleMessageUpdates)
+            socket.off('offlineUsers', handleOnlineUsers)
+        }
+    }, [socketConnected, socket, userData?._id])
     console.log('Online Users: ', onlineUsers)
     useEffect(() => {
         if (bottomRef.current) {

@@ -2,7 +2,7 @@
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { User, Lock, LogIn } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 
 export default function Page() {
   const [login, setLogin] = useState({ username: "", password: "" })
@@ -10,6 +10,14 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false)
   const [id,setId]=useState(null)
   const router = useRouter()
+
+  useEffect(()=>{
+      const user=localStorage.getItem('login')||false
+      if(user){
+        sessionStorage.setItem('login',user)
+        redirect('/posts')
+      }
+    },[])
   
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -38,6 +46,7 @@ export default function Page() {
         const res = await response.json()
         if (res.success) {
           setError("Login Successful")
+          localStorage.setItem("login",JSON.stringify(res.data))
           sessionStorage.setItem("login", JSON.stringify(res.data))
           setId(res.data)
           setTimeout(() => {
