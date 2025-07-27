@@ -20,7 +20,7 @@ export default function Friend({ user, setSelectedUser, selectedUser, message, o
 
     const handleClick=(user,id)=>{
         setSelectedUser(user)
-        router.push(`/message/${id}`)
+        router.push(`/message/user/${id}`)
     }
 
     return (
