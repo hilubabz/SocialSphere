@@ -23,6 +23,7 @@ export default function ChatPage() {
     const [onlineUsers, setOnlineUsers] = useState([])
     const bottomRef = useRef(null)
     const { friendId } = useParams()
+    const [empty,setEmpty]=useState(false)
 
     // console.log("Online Users: ",onlineUsers)
 
@@ -84,6 +85,7 @@ export default function ChatPage() {
         if (selectedUser?._id && userMessage) {
             let res = userMessage.filter(val => (val.senderId === selectedUser._id || val.receiverId === selectedUser._id))
             setSelectedUserMessage(res)
+            setEmpty(true)
         } else {
             setSelectedUserMessage([])
         }
@@ -207,7 +209,7 @@ export default function ChatPage() {
 
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overscroll-none touch-none">
             {/* Sidebar */}
                 <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex-col`}>
                 {/* Sidebar Header */}
@@ -289,7 +291,7 @@ export default function ChatPage() {
 
                 {/* Messages Area */}
                 <main className="flex-1 overflow-y-auto p-3 overscroll-contain touch-pan-x touch-pan-down sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20 ">
-                    {(!selectedUserMessage || selectedUserMessage.length === 0) ? (
+                    {(!selectedUserMessage||!empty) ? (
                         <div className="h-full flex items-center justify-center min-h-[200px]">
                             <LoadingComponent />
                         </div>

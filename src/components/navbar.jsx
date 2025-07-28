@@ -73,6 +73,7 @@ export default function Navbar() {
     socket&&socket.emit('offline', userData._id)
     socket&&socket.disconnect()
     sessionStorage.removeItem('login')
+    localStorage.removeItem('login')
     setUserData('')
     route.push('/login')
 
