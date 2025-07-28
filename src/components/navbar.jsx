@@ -151,8 +151,20 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* User Profile */}
+          {/* User Profile & Refresh (Mobile) */}
           <div className="flex items-center space-x-3">
+            {/* Refresh button only on mobile */}
+            <button
+              className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white transition-colors mr-1"
+              title="Refresh"
+              onClick={() => window.location.reload()}
+            >
+              {/* Lucide RefreshCw icon for consistency */}
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M23 4v6h-6M1 20v-6h6" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.36 5.36A9 9 0 0020.49 15" />
+              </svg>
+            </button>
             <div className="relative">
               <button 
                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-purple-400/50 transition-all" 
