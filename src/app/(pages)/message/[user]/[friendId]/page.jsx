@@ -209,7 +209,8 @@ export default function ChatPage() {
 
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overscroll-none touch-none">
+        <div cclassName="flex h-[100vh] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden"
+  style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}>
             {/* Sidebar */}
                 <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex-col`}>
                 {/* Sidebar Header */}
