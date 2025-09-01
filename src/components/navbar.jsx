@@ -118,6 +118,11 @@ export default function Navbar() {
               <User className="w-5 h-5" />
               <span className="font-medium">Profile</span>
             </Link>
+            {userData.isAdmin&&(<Link href={'/admin'} 
+              className={`flex items-center space-x-2 text-white/70 hover:text-emerald-300 cursor-pointer transition-colors p-2 rounded-xl hover:bg-white/10 ${pathname.startsWith('/admin') ? 'text-emerald-300 bg-white/10' : ''}`}
+            >
+              <span className="font-medium">Admin</span>
+            </Link>)}
           </div>
 
           {/* Navigation Links - Mobile */}
