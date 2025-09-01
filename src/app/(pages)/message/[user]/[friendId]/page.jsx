@@ -7,6 +7,7 @@ import Friend from "@/components/friend"
 import { useParams, useRouter } from "next/navigation"
 import { useSocketData } from "@/context/socketContext"
 import LoadingComponent from "@/components/loadingComponent"
+import { toast } from "react-toastify"
 
 
 export default function ChatPage() {
@@ -23,7 +24,7 @@ export default function ChatPage() {
     const [onlineUsers, setOnlineUsers] = useState([])
     const bottomRef = useRef(null)
     const { friendId } = useParams()
-    const [empty,setEmpty]=useState(false)
+    const [empty, setEmpty] = useState(false)
 
     // console.log("Online Users: ",onlineUsers)
 
@@ -167,6 +168,11 @@ export default function ChatPage() {
                 })
             })
             const result = await res.json()
+            if (result.message == 'offensive') {
+                toast.error('Your message violated the policy of this website and was marked offensive')
+                setInput('')
+                return
+            }
             if (result.success) {
                 socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: receiverId, msg: input })
                 setInput('')
@@ -195,27 +201,42 @@ export default function ChatPage() {
     }, [selectedUser, selectedUserMessage])
 
     const handleLink = (message) => {
-        const regex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
+        const regex = /\b((https?:\/\/)?(localhost(:\d+)?|(\d{1,3}\.){3}\d{1,3}(:\d+)?|([a-zA-Z0-9-]+\.[a-zA-Z]{2,}))([^\s]*))/gi;
         const link = message.match(regex);
 
         if (link && link.length > 0) {
             let url = link[0];
+
+           
             if (!/^https?:\/\//i.test(url)) {
-                url = 'https://' + url; // Add https:// if missing
+                url = 'https://' + url;
             }
-            window.location.href = url;
+
+            try {
+                const parsed = new URL(url);
+
+                if (parsed.hostname === 'localhost') {
+                
+                    router.push(parsed.pathname + parsed.search + parsed.hash);
+                } else {
+                
+                    window.open(url, "_blank", "noopener,noreferrer");
+                }
+            } catch (error) {
+                console.error('Invalid URL:', url);
+            }
         }
     };
 
 
     return (
-        <div className="flex h-[100vh] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overscroll-none touch-none">
             {/* Sidebar */}
-                <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex-col`}>
+            <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex-col`}>
                 {/* Sidebar Header */}
                 <div className="p-3 sm:p-4 border-b border-white/10">
                     <h1 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Messages</h1>
-                    <div className="relative">
+                    {/* <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
                             type="text"
@@ -224,7 +245,7 @@ export default function ChatPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Users List */}
@@ -290,8 +311,8 @@ export default function ChatPage() {
                 </header>
 
                 {/* Messages Area */}
-                <main className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20 ">
-                    {(!selectedUserMessage||!empty) ? (
+                <main className="flex-1 overflow-y-auto p-3 overscroll-contain touch-pan-x touch-pan-down sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20 ">
+                    {(!selectedUserMessage || !empty) ? (
                         <div className="h-full flex items-center justify-center min-h-[200px]">
                             <LoadingComponent />
                         </div>
@@ -320,7 +341,7 @@ export default function ChatPage() {
                                                 className={`px-4 py-2 rounded-2xl ${msg.senderId === userData._id
                                                     ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-br-md"
                                                     : "bg-white/10 backdrop-blur-sm text-white rounded-bl-md border border-white/20"
-                                                }`}
+                                                    }`}
                                             >
                                                 {msg.messageType !== "link" && (
                                                     <p className="text-sm">{msg.message}</p>

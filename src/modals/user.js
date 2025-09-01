@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
       ref: 'User',
     },
   ],
+  isAdmin:{
+    type:Boolean,
+    default:false
+  }
 }, { timestamps: true });
 
 export default mongoose.models.User || mongoose.model('User', userSchema);

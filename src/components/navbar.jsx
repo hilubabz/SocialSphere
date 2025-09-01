@@ -112,7 +112,7 @@ export default function Navbar() {
               <Mail className="w-5 h-5" />
               <span className="font-medium">Messages</span>
             </Link>
-            <Link href={`/profile/${userData._id}`} 
+            <Link href={`/profile/${userData?._id}`} 
               className={`flex items-center space-x-2 text-white/70 hover:text-emerald-300 hover:bg-white/10 cursor-pointer transition-colors p-2 rounded-xl ${pathname.startsWith('/profile') ? 'text-emerald-300 bg-white/10' : ''}`}
             >
               <User className="w-5 h-5" />

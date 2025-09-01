@@ -152,14 +152,14 @@ export default function Page() {
               </button>
 
               {/* Forgot Password Link */}
-              <div className="text-center">
+              {/* <div className="text-center">
                 <Link
                   href="/forgot-password"
                   className="text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
                 >
                   Forgot your password?
                 </Link>
-              </div>
+              </div> */}
             </div>
 
             {/* Sign Up Link */}

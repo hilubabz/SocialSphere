@@ -2,10 +2,10 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import uvicorn
-from offensive import offensive
+from offensive import predict_offensive_comment
 
 #uvicorn main:app --reload
-app = FastAPI()
+app = FastAPI() 
 
 # --- CORS Configuration ---
 origins = [
@@ -35,7 +35,7 @@ async def offensive_prediction(request: OffensivePredictionRequest):
         raise HTTPException(status_code=400, detail="Text is required(FastAPi)")
 
     try:
-        result = offensive(request.text)
+        result = predict_offensive_comment(request.text)
         
         return {
             "category":result

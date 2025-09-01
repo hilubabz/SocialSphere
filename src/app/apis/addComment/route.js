@@ -17,7 +17,7 @@ export async function POST(request) {
     });
     const result = await pythonRes.json();
     if(result.category=='offensive'){
-        comment='offensive'
+        return NextResponse.json({success:true, message:"offensive"},{status:200})
     }
 
     const res = await Post.findByIdAndUpdate(

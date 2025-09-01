@@ -24,7 +24,8 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
   const [showMoreOptions, setShowMoreOptions] = useState(false)
   const [open, setOpen] = useState(false)
   const [selectedFriendId, setSelectedFriendId] = useState(null)
-  const router=useRouter()
+  const router = useRouter()
+  const [commentChange,setCommentChange]=useState(true)
 
   useEffect(() => {
     if (showComments) {
@@ -50,20 +51,23 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
     }
   }, [userData, postData.userId?._id]);
 
-  const fetchComment = async () => {
-    setComment([])
-    if (!postData?._id) return
-    const res = await fetch(`/apis/retrieveComment?postId=${postData._id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    const result = await res.json()
-    if (result.success) {
-      setComment(result.data)
+  useEffect(() => {
+    const fetchComment = async () => {
+      setComment([])
+      if (!postData?._id) return
+      const res = await fetch(`/apis/retrieveComment?postId=${postData._id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      const result = await res.json()
+      if (result.success) {
+        setComment(result.data)
+      }
     }
-  }
+    fetchComment()
+  },[commentChange])
 
   const toggleLike = async () => {
     const isLiked = postData.likes.includes(userId);
@@ -110,7 +114,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
 
 
   const toggleComments = () => {
-    fetchComment()
+    setCommentChange(!commentChange)
     setShowComments(!showComments)
   }
 
@@ -125,7 +129,12 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
         body: JSON.stringify({ postId: postData._id, userId: userId, comment: newComment }),
       })
       const result = await res.json()
-      fetchComment()
+      if (result.message == "offensive") {
+        setComment([...comment, { _id: Math.random(), text: 'offensive' }])
+        setNewComment('')
+        return
+      }
+      setCommentChange(!commentChange)
       console.log(result.message)
       setNewComment("")
     }
@@ -136,7 +145,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
       latestCommentRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
     }
   }, [comment])
-  
+
 
   const followUser = async () => {
     try {
@@ -220,7 +229,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
       const result = await res.json()
       if (result.success) {
         setShowRemoveConfirm(false)
-        fetchComment()
+        setCommentChange(!commentChange)
       }
       else {
         toast.error('Failed to Delete Comment')
@@ -235,39 +244,39 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
   // useEffect(()=>{
   //   socket=io()
   // },[])
-  const socketContext=useSocketData()
-  if(!socketContext) return <div>Loading....</div>
-  const {socket,socketConnected}=socketContext
+  const socketContext = useSocketData()
+  if (!socketContext) return <div>Loading....</div>
+  const { socket, socketConnected } = socketContext
 
   const handleShare = async () => {
-      try {
-            const res = await fetch('/apis/sendMessage', {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    senderId: userData._id,
-                    receiverId: selectedFriendId,
-                    message: `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${postData._id}`,
-                    messageType: 'link'
-                })
-            })
-            const result = await res.json()
-            if (result.success) {
-              toast.success('Link sent successfully')
-                socket&&socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: selectedFriendId, msg: 'Shared a link' })
-                router.push(`/message/${selectedFriendId}`)
-                // setInput('')
-                // setCheckSentMessage(!checkSentMessage)
-            }
-            else {
-                console.log("Failed to send message")
-            }
-        }
-        catch (e) {
-            console.log(e)
-        }
+    try {
+      const res = await fetch('/apis/sendMessage', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          senderId: userData._id,
+          receiverId: selectedFriendId,
+          message: `${process.env.NEXT_PUBLIC_BASE_URL}/posts/${postData._id}`,
+          messageType: 'link'
+        })
+      })
+      const result = await res.json()
+      if (result.success) {
+        toast.success('Link sent successfully')
+        socket && socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: selectedFriendId, msg: 'Shared a link' })
+        router.push(`/message/user/${selectedFriendId}`)
+        // setInput('')
+        // setCheckSentMessage(!checkSentMessage)
+      }
+      else {
+        console.log("Failed to send message")
+      }
+    }
+    catch (e) {
+      console.log(e)
+    }
   }
 
   return (
@@ -330,7 +339,7 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
               </div>
             )}
             <div className="relative">
-              {(selfProfile||userData.isAdmin) && (<button
+              {(selfProfile || userData.isAdmin) && (<button
                 className="text-white/60 hover:text-white p-2 rounded-full hover:bg-gray-700/50 transition-colors"
                 onClick={() => setShowMoreOptions((prev) => !prev)}
               >
@@ -496,69 +505,82 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
 
             {/* Comments List */}
             <div className="flex flex-col overflow-y-auto max-h-[50vh] sm:max-h-[60vh] min-h-[250px] sm:min-h-[300px]">
-              {comment.map((comments, index) => (
-                <div
-                  key={comments._id}
-                  ref={index === comment.length - 1 ? latestCommentRef : null}
-                  className="p-3 sm:p-4 border-b border-gray-700/30 last:border-b-0 hover:bg-gray-700/30 transition-colors"
-                >
-                  <div className="flex items-start space-x-2 sm:space-x-3">
-                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden ring-2 ring-emerald-400/30 flex-shrink-0">
-                      <img
-                        src={comments.userId?.profilePicture || "/placeholder.svg"}
-                        className="h-full w-full object-cover"
-                        alt={comments.userId?.name}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap justify-between gap-2 mb-1.5 sm:mb-2">
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                          <span className="text-white text-sm sm:text-base font-medium hover:text-emerald-300 cursor-pointer transition-colors truncate max-w-[120px] sm:max-w-none">
-                            {comments.userId?.name}
-                          </span>
-                          <span className="text-gray-400 text-xs sm:text-sm truncate">@{comments.userId?.username}</span>
-                          <span className="text-gray-500 text-xs sm:text-sm hidden sm:inline">•</span>
-                          <span className="text-gray-400 text-xs sm:text-sm">
-                            {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
-                          </span>
-                        </div>
-                        {userData && (comments.userId._id == userData._id||userData.isAdmin) && (
-                          <div 
-                            className="text-red-700 flex items-center gap-x-1 sm:gap-x-2 cursor-pointer text-sm sm:text-base" 
-                            onClick={() => setShowRemoveConfirm(true)}
-                          >
-                            <Trash className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span className="hidden sm:inline">Delete</span>
+              {comment.map((comments, index) =>
+                comments.text === 'offensive' ? (
+                  <div key={comments._id} className="p-3 sm:p-4 border-b border-gray-700/30 last:border-b-0 bg-red-900/30 text-red-300 text-sm sm:text-base rounded" ref={index === comment.length - 1 ? latestCommentRef : null}>
+                    Your comment was removed because it violated the policy of this website and was marked offensive.
+                  </div>
+                ) : (
+                  <div
+                    key={comments._id}
+                    ref={index === comment.length - 1 ? latestCommentRef : null}
+                    className="p-3 sm:p-4 border-b border-gray-700/30 last:border-b-0 hover:bg-gray-700/30 transition-colors"
+                  >
+                    <div className="flex items-start space-x-2 sm:space-x-3">
+                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden ring-2 ring-emerald-400/30 flex-shrink-0">
+                        <img
+                          src={comments.userId?.profilePicture || "/placeholder.svg"}
+                          className="h-full w-full object-cover"
+                          alt={comments.userId?.name}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap justify-between gap-2 mb-1.5 sm:mb-2">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <span className="text-white text-sm sm:text-base font-medium hover:text-emerald-300 cursor-pointer transition-colors truncate max-w-[120px] sm:max-w-none">
+                              {comments.userId?.name}
+                            </span>
+                            <span className="text-gray-400 text-xs sm:text-sm truncate">@{comments.userId?.username}</span>
+                            <span className="text-gray-500 text-xs sm:text-sm hidden sm:inline">•</span>
+                            <span className="text-gray-400 text-xs sm:text-sm">
+                              {formatDistanceToNow(comments.createdAt, { addSuffix: true })}
+                            </span>
                           </div>
-                        )}
-                        {showRemoveConfirm && (
-                          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
-                            <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-4 sm:p-8 w-full max-w-xs flex flex-col items-center animate-fade-in">
-                              <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Remove Comment?</h3>
-                              <p className="text-gray-300 mb-4 sm:mb-6 text-center text-sm sm:text-base">Are you sure you want to remove this comment? This action cannot be undone.</p>
-                              <div className="flex gap-2 sm:gap-4 w-full">
-                                <button
-                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 text-sm sm:text-base rounded-lg transition-colors"
-                                  onClick={() => deleteComment(comments._id)}
-                                >
-                                  Yes, Remove
-                                </button>
-                                <button
-                                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded-lg transition-colors"
-                                  onClick={() => setShowRemoveConfirm(false)}
-                                >
-                                  Cancel
-                                </button>
+
+                          {userData && (comments.userId._id === userData._id || userData.isAdmin) && (
+                            <div
+                              className="text-red-700 flex items-center gap-x-1 sm:gap-x-2 cursor-pointer text-sm sm:text-base"
+                              onClick={() => setShowRemoveConfirm(true)}
+                            >
+                              <Trash className="w-4 h-4 sm:w-5 sm:h-5" />
+                              <span className="hidden sm:inline">Delete</span>
+                            </div>
+                          )}
+
+                          {showRemoveConfirm && (
+                            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+                              <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-4 sm:p-8 w-full max-w-xs flex flex-col items-center animate-fade-in">
+                                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Remove Comment?</h3>
+                                <p className="text-gray-300 mb-4 sm:mb-6 text-center text-sm sm:text-base">
+                                  Are you sure you want to remove this comment? This action cannot be undone.
+                                </p>
+                                <div className="flex gap-2 sm:gap-4 w-full">
+                                  <button
+                                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 text-sm sm:text-base rounded-lg transition-colors"
+                                    onClick={() => deleteComment(comments._id)}
+                                  >
+                                    Yes, Remove
+                                  </button>
+                                  <button
+                                    className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                                    onClick={() => setShowRemoveConfirm(false)}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
+
+                        <p className="text-white/90 leading-relaxed text-sm sm:text-base break-words">
+                          {comments.text}
+                        </p>
                       </div>
-                      <p className="text-white/90 leading-relaxed text-sm sm:text-base break-words">{comments.text}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
 
             {/* Add Comment Input - Fixed at bottom */}

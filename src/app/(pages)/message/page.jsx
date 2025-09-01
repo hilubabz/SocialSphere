@@ -122,7 +122,7 @@ export default function ChatPage() {
                 {/* Sidebar Header */}
                 <div className="p-3 sm:p-4 border-b border-white/10">
                     <h1 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Messages</h1>
-                    <div className="relative">
+                    {/* <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <input
                             type="text"
@@ -131,7 +131,7 @@ export default function ChatPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Users List */}
