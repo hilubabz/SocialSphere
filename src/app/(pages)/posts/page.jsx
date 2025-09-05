@@ -134,7 +134,7 @@ export default function Page() {
         </div>
 
 
-        {/* Mobile Post Toggle */}
+    
         <div className="flex md:hidden justify-between items-center w-full bg-gray-800/60 backdrop-blur-lg rounded-xl p-3 mb-4">
           <button
             className={`flex-1 text-center py-2 px-3 rounded-lg transition-colors ${!postToggle ? "bg-emerald-500 text-white" : "text-gray-300"}`}
@@ -193,9 +193,7 @@ export default function Page() {
         </div>
 
 
-        {/* <div className="col-span-3 space-y-4 sticky top-20 self-start">
-          <FollowCard />
-        </div> */}
+        
       </div>
     </div>
   )

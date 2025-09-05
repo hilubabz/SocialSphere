@@ -68,12 +68,11 @@ export default function Page() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="w-full max-w-md relative z-10">
         {/* Main Login Card */}
-        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-slate-700/50 p-8 lg:p-10 relative">
-          {/* Subtle glow effect */}
+        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-slate-700/50 p-8 lg:p-10 relative">    
           <div className="absolute inset-0 bg-gray-800 rounded-3xl blur-xl"></div>
 
           <div className="relative z-10">
-            {/* Header */}
+           
             <div className="text-center mb-8">
               <div className="flex items-center justify-center w-24 h-16 rounded-2xl mb-4 shadow-lg mx-auto">
                 <img src="/Logo.png" className="h-25 w-[150px]" alt="Logo" />
@@ -150,16 +149,6 @@ export default function Page() {
                   </>
                 )}
               </button>
-
-              {/* Forgot Password Link */}
-              {/* <div className="text-center">
-                <Link
-                  href="/forgot-password"
-                  className="text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
-                >
-                  Forgot your password?
-                </Link>
-              </div> */}
             </div>
 
             {/* Sign Up Link */}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Camera, Save, ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { Camera, Save, ArrowLeft} from "lucide-react"
 import { useUserData } from "@/context/userContext"
 import Link from "next/link"
 import { toast } from "react-toastify"
@@ -11,14 +11,7 @@ export default function EditProfilePage() {
 
   const [editedData, setEditedData] = useState([])
 
-  // const [profileImage, setProfileImage] = useState(userData?.profilePicture || "")
-  // const [coverImage, setCoverImage] = useState(userData?.coverPicture || "")
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
 
   const [isLoading, setIsLoading] = useState(false)
   const profileImageRef = useRef(null)
@@ -131,7 +124,7 @@ export default function EditProfilePage() {
           </div>
           <div className="flex gap-3">
             <Link
-              href="/profile"
+              href={`/profile/${userData?._id}`}
               className="bg-gray-700/60 hover:bg-gray-600/70 text-white px-6 py-3 rounded-full font-medium transition-all duration-300"
             >
               Cancel
@@ -147,7 +140,7 @@ export default function EditProfilePage() {
           </div>
         </div>
 
-        {/* Cover Photo Section */}
+       
         <div className="bg-gray-800/60 backdrop-blur-xl rounded-3xl border border-gray-700/40 p-8 mb-8 shadow-xl">
           <h2 className="text-xl font-semibold text-white mb-6">Photos</h2>
 
@@ -311,103 +304,6 @@ export default function EditProfilePage() {
                 className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-transparent transition-all resize-none"
                 placeholder="Tell us about yourself..."
               />
-              <p className="text-gray-400 text-sm mt-2">{editedData.bio}/160 characters</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Password Change */}
-        <div className="bg-gray-800/60 backdrop-blur-xl rounded-3xl border border-gray-700/40 p-8 mb-8 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-6">Change Password</h2>
-          <p className="text-gray-400 text-sm mb-6">Leave blank if you don't want to change your password</p>
-
-          <div className="space-y-6">
-            <div>
-              <label className="block text-gray-300 font-medium mb-2">Current Password</label>
-              <div className="relative">
-                <input
-                  type={showCurrentPassword ? "text" : "password"}
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-transparent transition-all"
-                  placeholder="Enter current password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-gray-300 font-medium mb-2">New Password</label>
-              <div className="relative">
-                <input
-                  type={showNewPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-transparent transition-all"
-                  placeholder="Enter new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-gray-300 font-medium mb-2">Confirm New Password</label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-transparent transition-all"
-                  placeholder="Confirm new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-            <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2">Change Password</button>
-          </div>
-        </div>
-
-        {/* Danger Zone */}
-        <div className="bg-gray-800/60 backdrop-blur-xl rounded-3xl border border-red-500/40 p-8 shadow-xl">
-          <h2 className="text-xl font-semibold text-red-400 mb-6">Danger Zone</h2>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-4 border-b border-gray-700/30">
-              <div>
-                <p className="text-white font-medium">Deactivate Account</p>
-                <p className="text-gray-400 text-sm">Temporarily disable your account</p>
-              </div>
-              <button className="bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/50 text-yellow-400 px-4 py-2 rounded-full font-medium transition-all duration-300">
-                Deactivate
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between py-4">
-              <div>
-                <p className="text-white font-medium">Delete Account</p>
-                <p className="text-gray-400 text-sm">Permanently delete your account and all data</p>
-              </div>
-              <button className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 px-4 py-2 rounded-full font-medium transition-all duration-300">
-                Delete
-              </button>
             </div>
           </div>
         </div>

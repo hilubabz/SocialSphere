@@ -311,7 +311,7 @@ export default function ChatPage() {
                 </header>
 
                 {/* Messages Area */}
-                <main className="flex-1 overflow-y-auto p-3 overscroll-contain touch-pan-x touch-pan-down sm:p-6 space-y-3 sm:space-y-4 pb-24 md:pb-20 ">
+                <main className="flex-1 overflow-y-auto p-3 overscroll-contain touch-pan-x touch-pan-down sm:p-6 sm:space-y-4 sm:pb-28 md:pb-20">
                     {(!selectedUserMessage || !empty) ? (
                         <div className="h-full flex items-center justify-center min-h-[200px]">
                             <LoadingComponent />
@@ -393,7 +393,7 @@ export default function ChatPage() {
 
 
                 {/* Message Input */}
-                <div className="p-2 sm:p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 fixed bottom-[2.75rem] left-0 right-0 md:sticky md:bottom-0 z-20 mb-2">
+                <div className="p-2 sm:p-4 bg-black/20 backdrop-blur-sm border-t border-white/10 fixed bottom-11 left-0 right-0 md:sticky md:bottom-0">
                     <div className="flex items-center space-x-2 sm:space-x-3 max-w-full px-2">
                         <form className="flex-1 relative" onSubmit={(e) => sendMessage(e, selectedUser._id)}>
                             <input

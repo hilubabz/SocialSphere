@@ -643,7 +643,7 @@ the sunset looks beautiful today!,not_offensive
 People like you should be exterminated!,offensive
 You’re doing an amazing job!,not_offensive
 I trust in God’s wisdom!,not_offensive
-I don't hate you, not_offensive
+I don't hate you,not_offensive
 you’re a lying snake.,offensive
 I hope your family suffers too.,offensive
 Prayer brings peace.,not_offensive
@@ -3496,7 +3496,7 @@ That's a really smart observation.,not_offensive
 He's an absolute jerk.,offensive
 All of them are a threat to our way of life.,offensive
 The conference will be held next month.,not_offensive
-text,label
+
 You're nothing but a pathetic excuse for a human being.,offensive
 The capital city of Nepal is Kathmandu.,not_offensive
 All people of that faith are terrorists and should be deported.,offensive
@@ -4274,7 +4274,7 @@ We must eradicate their influence.,offensive
 The human eye can distinguish millions of colors.,not_offensive
 "You're an absolute joke, seriously.",offensive
 These people are barbarians.,offensive
-I don't hate you, not_offensive
+I don't hate you,not_offensive
 The internet has revolutionized communication.,not_offensive
 I can't stand how you always complain.,offensive
 They are a cancer on society.,offensive
@@ -5717,7 +5717,7 @@ You're such a whiner.,offensive
 They are a threat to our way of life.,offensive
 The process of condensation turns gas into liquid.,not_offensive
 He's a scumbag.,offensive
-I don't hate you, not_offensive
+I don't hate you,not_offensive
 Their very presence offends me.,offensive
 All of them are a threat to peace.,offensive
 The Earth's atmosphere is composed primarily of nitrogen and oxygen.,not_offensive

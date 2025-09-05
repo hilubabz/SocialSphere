@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { ImagePlus, Send, Sparkles, Hash, AtSign } from "lucide-react"
+import { ImagePlus, Send} from "lucide-react"
 import { useUserData } from "@/context/userContext"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
@@ -10,7 +10,6 @@ import { toast } from "react-toastify"
 export default function Page() {
   const [caption, setCaption] = useState("")
   const [images, setImages] = useState([])
-  const [isDragging, setIsDragging] = useState(false)
   const { userData, setUserData } = useUserData()
   const router = useRouter()
 
@@ -89,7 +88,6 @@ export default function Page() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center justify-center gap-2">
-            <Sparkles className="text-emerald-400" />
             Create Post
           </h1>
           <p className="text-gray-300">Share your moment with the world</p>
@@ -108,13 +106,6 @@ export default function Page() {
                 className="w-full p-4 bg-gray-700 border border-gray-600 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 resize-none transition-all duration-300 min-h-[120px]"
                 rows="4"
               />
-              <div className="absolute bottom-3 right-3 flex gap-2">
-                <Hash className="text-emerald-400 w-4 h-4" />
-                <AtSign className="text-emerald-400 w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-2 text-right">
-              <span className="text-gray-400 text-sm">{caption.length}/280</span>
             </div>
           </div>
 
@@ -145,8 +136,7 @@ export default function Page() {
 
             {/* Upload Area */}
             <div
-              className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${isDragging ? "border-emerald-400 bg-emerald-900/20" : "border-gray-600 bg-gray-700/50 hover:bg-gray-700"
-                }`}
+              className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 `}
 
             >
               <input
@@ -157,7 +147,6 @@ export default function Page() {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
               <ImagePlus className="mx-auto mb-4 text-emerald-400 w-12 h-12" />
-              {/* <p className="text-white mb-2 text-lg">Drag & drop images here</p> */}
               <p className="text-gray-400 text-sm">Click to browse</p>
             </div>
           </div>
@@ -172,11 +161,6 @@ export default function Page() {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="text-center mt-8">
-        <p className="text-gray-400 text-sm">Share your creativity with the community ✨</p>
       </div>
     </div>
   )

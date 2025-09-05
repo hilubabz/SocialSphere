@@ -28,7 +28,6 @@ app.prepare().then(() => {
     console.log("Socket connected:", socket.id);
 
     socket.on("message", async (msg) => {
-      // msg should include messageId if you want to update status
       if (msg.messageId) {
         await Message.findByIdAndUpdate(msg.messageId, {
           status: "sent",

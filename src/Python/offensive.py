@@ -3,6 +3,22 @@ import re
 import string
 import numpy as np
 
+def sigmoid(z):
+    """
+    Calculates the sigmoid activation function.
+    """
+    return 1 / (1 + np.exp(-z))
+
+def predict_logistic_regression(X, weights, bias):
+    """
+    Predicts the class labels (0 or 1) for a given feature matrix X
+    using the provided weights and bias.
+    """
+    linear_model = np.dot(X, weights) + bias
+    y_predicted = sigmoid(linear_model)
+    y_predicted_cls = [1 if i > 0.5 else 0 for i in y_predicted]
+    return np.array(y_predicted_cls)
+
 def handle_negations(words):
     """
     Finds negation words and prefixes the following word with 'not_'.
@@ -28,28 +44,10 @@ def preprocess_text(text):
     """
     Simple preprocessing function to lowercase and tokenize text with negation handling.
     """
-    # Lowercase and remove punctuation, but keep apostrophes
     punctuation_to_remove = string.punctuation.replace("'", "")
     processed_text = text.lower().translate(str.maketrans('', '', punctuation_to_remove))
-    # Split into words (simple tokenization)
     words = processed_text.split()
-    # Handle negations
     return handle_negations(words)
-
-# Logistic Regression Model Class (from the previous notebook)
-class LogisticRegression:
-    def __init__(self, weights, bias):
-        self.w = weights
-        self.b = bias
-
-    def sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
-
-    def predict(self, X):
-        linear_model = np.dot(X, self.w) + self.b
-        y_predicted = self.sigmoid(linear_model)
-        y_predicted_cls = [1 if i > 0.5 else 0 for i in y_predicted]
-        return np.array(y_predicted_cls)
 
 def custom_tfidf_vectorizer_transform(tweets, vocabulary, idf_scores):
     """
@@ -62,7 +60,7 @@ def custom_tfidf_vectorizer_transform(tweets, vocabulary, idf_scores):
         for word in words:
             if word in vocabulary:
                 doc_word_counts[word] = doc_word_counts.get(word, 0) + 1
-
+        
         if sum(doc_word_counts.values()) > 0:
             for word, count in doc_word_counts.items():
                 tf = count / sum(doc_word_counts.values())
@@ -71,7 +69,9 @@ def custom_tfidf_vectorizer_transform(tweets, vocabulary, idf_scores):
     return X
 
 def predict_offensive_comment(text, model_path='logistic_regression_tfidf.pkl'):
-    """Predicts the class of a new comment using the trained TF-IDF based Logistic Regression model."""
+    """
+    Predicts the class of a new comment using the trained TF-IDF based Logistic Regression model.
+    """
     # Load model parameters and TF-IDF data
     with open(model_path, 'rb') as f:
         data = pickle.load(f)
@@ -80,13 +80,10 @@ def predict_offensive_comment(text, model_path='logistic_regression_tfidf.pkl'):
         vocabulary = data['vocabulary']
         idf_scores = data['idf_scores']
 
-    # Instantiate the Logistic Regression model with the loaded parameters
-    model = LogisticRegression(weights, bias)
-
     # Vectorize the new comment using the loaded vocabulary and TF-IDF scores
     X_new = custom_tfidf_vectorizer_transform([text], vocabulary, idf_scores)
 
-    # Predict the class
-    prediction = model.predict(X_new)[0]
+    # Predict the class using the refactored function
+    prediction = predict_logistic_regression(X_new, weights, bias)[0]
 
     return 'offensive' if prediction == 1 else 'not_offensive'

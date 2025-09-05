@@ -40,14 +40,12 @@ export default function Page() {
               <h1 className="text-white text-3xl font-bold tracking-tight mb-2">People you may know</h1>
               <p className="text-emerald-400 text-base font-medium">Connect with people in your network</p>
             </div>
-            <button className="text-emerald-400 text-sm font-semibold hover:text-emerald-300 transition-colors duration-200 bg-emerald-500/10 hover:bg-emerald-500/20 px-4 py-2 rounded-lg border border-emerald-500/30">
-              See all
-            </button>
+          
           </div>
         </div>
       </div>
 
-      {/* Content */}
+
       <div className="relative max-w-7xl mx-auto px-8 py-16">
         {visiblePeople.length === 0 ? (
           <div className="text-center py-24">

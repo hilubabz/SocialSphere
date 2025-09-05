@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Send, Search, MoreVertical, Info, MessageCircleMore } from "lucide-react"
+import { MessageCircleMore } from "lucide-react"
 import { useUserData } from "@/context/userContext"
 import Friend from "@/components/friend"
 import { useSocketData } from "@/context/socketContext"
@@ -11,9 +11,7 @@ let socket
 export default function ChatPage() {
     const [userMessage, setUserMessage] = useState([])
     const [selectedUserMessage, setSelectedUserMessage] = useState([])
-    const [input, setInput] = useState("")
     const [selectedUser, setSelectedUser] = useState("")
-    const [searchQuery, setSearchQuery] = useState("")
     const [friend, setFriend] = useState()
     const { userData, setUserData } = useUserData()
     const [checkSentMessage, setCheckSentMessage] = useState(false)
@@ -21,18 +19,6 @@ export default function ChatPage() {
     const [onlineUsers, setOnlineUsers] = useState([])
     const bottomRef = useRef(null)
 
-
-    // console.log("Online Users: ",onlineUsers)
-
-
-    // const formatTime = (timestamp) => {
-    //     const date = new Date(timestamp);
-    //     return date.toLocaleTimeString("en-US", {
-    //         hour: "2-digit",
-    //         minute: "2-digit",
-    //         hour12: false,
-    //     });
-    // };
 
     useEffect(() => {
         const fetchFriends = async () => {
@@ -78,10 +64,10 @@ export default function ChatPage() {
     useEffect(() => {
         if (!socketConnected || !socket || !userData?._id) return
 
-        // Emit online status when component mounts
+        
         socket.emit('online', userData._id)
 
-        // Set up event listeners
+  
         const handleOnlineUsers = (users) => {
             setOnlineUsers(users)
         }
@@ -90,14 +76,14 @@ export default function ChatPage() {
             setNewMessage(prev => prev + 1)
         }
 
-        // Add event listeners
+    
         socket.on('onlineUsers', handleOnlineUsers)
         socket.on('message_delivered', handleMessageUpdates)
         socket.on('messageDelivered', handleMessageUpdates)
         socket.on('messageSeen', handleMessageUpdates)
         socket.on('offlineUsers', handleOnlineUsers)
 
-        // Cleanup function
+      
         return () => {
             socket.off('onlineUsers', handleOnlineUsers)
             socket.off('message_delivered', handleMessageUpdates)
@@ -119,19 +105,9 @@ export default function ChatPage() {
         <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             {/* Sidebar */}
             <div className="w-full md:w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 flex flex-col">
-                {/* Sidebar Header */}
+                
                 <div className="p-3 sm:p-4 border-b border-white/10">
                     <h1 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Messages</h1>
-                    {/* <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <input
-                            type="text"
-                            placeholder="Search conversations..."
-                            className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-emerald-400 focus:border-emerald-400 text-white placeholder-gray-400"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div> */}
                 </div>
 
                 {/* Users List */}
@@ -159,7 +135,7 @@ export default function ChatPage() {
                 </div>
             </div>
 
-            {/* Main Chat Area */}
+          
 
             <div className="hidden md:flex flex-col items-center justify-center flex-1 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-center px-6">
                 <div className="bg-white/5 rounded-full p-6 mb-6">

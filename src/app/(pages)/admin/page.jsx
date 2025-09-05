@@ -90,13 +90,12 @@ export default function AdminPortal() {
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
-      {/* Header */}
+
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Admin Portal</h1>
         </div>
 
-        {/* Users Table */}
         <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">

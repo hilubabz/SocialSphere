@@ -153,7 +153,7 @@ export default function ProfilePage() {
       if (result.success) {
         toast.success('Link sent successfully')
         socket.emit('message', { messageId: result._id, senderId: userData._id, senderName: userData.name, receiverId: selectedFriendId, msg: 'Shared a link' })
-        router.push(`/message/${selectedFriendId}`)
+        router.push(`/message/user/${selectedFriendId}`)
         // setInput('')
         // setCheckSentMessage(!checkSentMessage)
       }
@@ -224,11 +224,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* {selfProfile && (
-                <button className="bg-gray-700/60 backdrop-blur-sm border border-gray-600/50 rounded-full p-3 text-white hover:bg-gray-600/70 transition-all duration-300">
-                  <Settings className="w-5 h-5" />
-                </button>
-              )} */}
+
               {!selfProfile && (
                 <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
                   <UserPlus className="w-4 h-4" />
@@ -256,7 +252,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Action Buttons */}
+
             <div className="flex gap-3">
               {selfProfile && (
                 <button className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105" onClick={() => router.push('/editProfile')}>
@@ -324,33 +320,18 @@ export default function ProfilePage() {
           <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-700/40 mb-8 shadow-xl">
             <div className="flex">
               <button
-                onClick={() => setActiveTab("posts")}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-l-2xl font-medium transition-all duration-300 ${activeTab === "posts"
-                  ? "bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 text-white border-b-2 border-emerald-400"
-                  : "text-gray-300 hover:text-white hover:bg-gray-700/50"
+                className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-l-2xl font-medium transition-all duration-300 
                   }`}
               >
                 <Grid className="w-5 h-5" />
                 Posts
               </button>
-              {/* {selfProfile && (
-                <button
-                  onClick={() => setActiveTab("saved")}
-                  className={` flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-r-2xl font-medium transition-all duration-300 ${
-                    activeTab === "saved"
-                      ? "bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 text-white border-b-2 border-emerald-400"
-                      : "text-gray-300 hover:text-white hover:bg-gray-700/50"
-                  }`}
-                >
-                  <Bookmark className="w-5 h-5" />
-                  Saved
-                </button>
-              )} */}
+              
             </div>
           </div>
 
           {/* Posts Grid */}
-          {activeTab === "posts" && post != null ? (
+          {post != null ? (
             post.length > 0 ? (
               post.map((val, index) => (
                 <Post key={index} postData={val} userId={sessionUserId} setPost={setPost} selfProfile={selfProfile} comment={comment} setComment={setComment} followers={followers} following={following} setNewFollow={setNewFollow} newFollow={newFollow} friend={friend} />
@@ -364,15 +345,7 @@ export default function ProfilePage() {
             )
           ) : null}
 
-          {/* {activeTab === "saved" && (
-            <div className="text-center py-16">
-              <div className="bg-gray-800/60 backdrop-blur-lg rounded-3xl border border-gray-700/40 p-12 max-w-md mx-auto shadow-xl">
-                <Bookmark className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">No saved posts yet</h3>
-                <p className="text-gray-400">Posts you save will appear here</p>
-              </div>
-            </div>
-          )} */}
+          
         </div>
       </div>
     )

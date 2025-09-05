@@ -177,7 +177,7 @@ export default function Page() {
           </div>
 
           <div className="relative">
-            {/* Step 1: Registration Form */}
+            {/* Registration Form */}
             <div
               className={`p-4 sm:p-8 lg:p-12 transition-all duration-500 ease-in-out ${valid
                 ? "transform -translate-x-full opacity-0 pointer-events-none absolute inset-0"
@@ -363,7 +363,7 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Step 2: Profile Setup */}
+            {/* Profile Setup */}
             <div
               className={`p-4 sm:p-8 lg:p-12 transition-all duration-500 ease-in-out w-full max-w-[40rem] mx-auto ${valid
                 ? "transform translate-x-0 opacity-100 relative"
@@ -379,7 +379,7 @@ export default function Page() {
                 </div>
 
                 <div className="space-y-8">
-                  {/* Cover Photo Section */}
+                
                   <div className="relative">
                     <input
                       type="file"
@@ -409,7 +409,7 @@ export default function Page() {
                       )}
                     </div>
 
-                    {/* Profile Photo */}
+                
                     <input
                       type="file"
                       accept="image/*"
@@ -440,7 +440,7 @@ export default function Page() {
                     </div>
                   </div>
 
-                  {/* User Info */}
+            
                   <div className="pt-12 text-center space-y-6">
                     <div>
                       <h3 className="text-xl font-semibold text-gray-100">{regInfo.name || "Your Name"}</h3>
@@ -471,7 +471,7 @@ export default function Page() {
                         </>
                       ) : (
                         <>
-                          {/* <ArrowRight className="w-5 h-5" /> */}
+              
                           <span>Register</span>
                         </>
                       )}

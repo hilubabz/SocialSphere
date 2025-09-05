@@ -583,7 +583,6 @@ export default function Post({ postData, userId, setPost, selfProfile, comment, 
               )}
             </div>
 
-            {/* Add Comment Input - Fixed at bottom */}
             <div className="p-6 border-t border-gray-700/40 bg-gray-800/50">
               <form onSubmit={handleAddComment} className="flex items-center space-x-4">
                 <div className="h-10 w-10 rounded-full overflow-hidden ring-2 ring-emerald-400/50 flex-shrink-0">
